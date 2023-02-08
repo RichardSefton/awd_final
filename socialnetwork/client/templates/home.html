@@ -1,0 +1,7 @@
+<div class="container">
+    {% if not authenticated %}
+        {% include 'loginblock.html' %}
+    {% else %}
+        {% include 'userlanding.html' %}
+    {% endif %}
+</div>
