@@ -1,0 +1,26 @@
+{% extends 'index.html' %}
+{% load static %}
+{% load bootstrap5 %}
+
+{% block content %}
+    <div class="card">
+        <div class="card-header text-center">
+            Socail Network
+        </div>
+        <div class="card-body text-center">
+            <form method="post" action="{% url 'login' %}">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+            
+                <!-- Submit button -->
+                <input type="submit" id="login_submit" class="btn btn-primary btn-block mb-4" value="Sign In"/>
+            
+                <!-- Register buttons -->
+                <div class="text-center">
+                    <p>Not a member? <a href="{% url 'register' %}">Register</a></p>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="{% static 'scripts/login.js' %}" type="module"></script>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'index.html' %}
+{% load bootstrap5 %}
+{% load static %}
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+    {% if not authenticated %}
+        <div class="card">
+            <div class="card-header text-center">
+                Socail Network
+            </div>
+            <div class="card-body text-center">
+                <form method="post" action="{% url 'register' %}">
+                    {% csrf_token %}
+                    {% bootstrap_form form %}
+
+                    <!-- Submit Button -->
+                    <div class="text-center">
+                        <input type="submit" id="register_submit" class="btn btn-primary" value="Register">
+                    </div>
+                    <!-- Login Link -->
+                    <div class="text-center">
+                        <p>Already joined? <a href="{% url 'login' %}">Sign In</a></p>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script src="{% static 'scripts/register.js' %}" type="module"></script>
+    {% else %}
+        <div class="card">
+            <div class="card-body text-center">
+                <h2>You are already a member</h2>
+                <p>Dude, don't be greedy. One account per person. Just use what you have.</p>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}
