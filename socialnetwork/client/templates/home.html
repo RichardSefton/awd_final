@@ -1,14 +1,43 @@
 {% extends 'index.html' %}
 {% load bootstrap5 %}
 
+{% block title %}
+    {% if authenticated %}
+        My Space
+    {% else %}
+        Social Network
+    {% endif %}
+{% endblock %}
+
 {% block content %}
     <div class="container">
         {% if not authenticated %}
-            <div class="row">
-                <div>Already a member? <a href="{% url 'login' %}">Login!</a></div>
+            <div class="card">
+                <div class="card-header">
+                    <h1>Welcome to the Social Network</h1>
+                </div>
+                <div class="card-body">
+                    <b>This is a place where you can:</b>
+                    <ul>
+                        <li>Find Friends</li>
+                        <li>Chat with one or more people</li>
+                        <li>Share your thoughts</li>
+                        <li>Share your memories</li>
+                        <li>Play games</li>
+                    </ul>
+                    <br/>
+                    <span class="text-center">
+                        <p>If this sounds good to you, then please <a href="{% url 'client:register' %}">
+                            click here
+                        </a> to create your account</p>
+                    </span>
+                </div>
+            </div>
+            <div class="row text-center">
+                <div>Already a member? <a href="{% url 'client:login' %}">Login!</a></div>
             </div>
         {% else %}
-            {% include 'userlanding.html' %}
+            {% include 'userLanding/index.html' %}
         {% endif %}
     </div>
 {% endblock %}

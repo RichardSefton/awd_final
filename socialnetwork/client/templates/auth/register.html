@@ -11,7 +11,7 @@
                 Socail Network
             </div>
             <div class="card-body text-center">
-                <form method="post" action="{% url 'register' %}">
+                <form method="post" action="{% url 'client:register' %}">
                     {% csrf_token %}
                     {% bootstrap_form form %}
 
@@ -21,7 +21,7 @@
                     </div>
                     <!-- Login Link -->
                     <div class="text-center">
-                        <p>Already joined? <a href="{% url 'login' %}">Sign In</a></p>
+                        <p>Already joined? <a href="{% url 'client:login' %}">Sign In</a></p>
                     </div>
                 </form>
             </div>

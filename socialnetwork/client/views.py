@@ -20,8 +20,9 @@ def register(request):
             return redirect("/")
         messages.error(request, "Unsuccessful registration. Invalid information.")
     
-    return render(request, 'register.html', {
+    return render(request, 'auth/register.html', {
         "form": form,
+        "authenticated": request.user.is_authenticated,
         "title": "Register"
     })
 
@@ -37,8 +38,9 @@ def login_request(request):
         login(request, user)
         return redirect('/')
     
-    return render(request, 'login.html', {
+    return render(request, 'auth/login.html', {
         "form": form,
+        "authenticated": request.user.is_authenticated,
         "title": "Login"
     })
 
@@ -46,3 +48,15 @@ def logout_request(request):
     logout(request)
     messages.info(request, "Logged out successfully!")
     return redirect("/")
+
+def friendslist(request):
+    return render(request, 'friends/list.html')
+
+def profile(request):
+    return render(request, 'user/profile.html')
+
+def search(request):
+    return render(request, 'friends/search.html')
+
+def play(request):
+    return render(request, 'games/play.html')

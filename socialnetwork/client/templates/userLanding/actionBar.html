@@ -1,0 +1,24 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'styles/actionBar.css' %}">
+<div class="row">
+    <div class="col-3">
+        <div class="action-button">
+            <a href="{% url 'client:friendslist' %}">Friends List</a>
+        </div>
+    </div>
+    <div class="col-3">
+        <div class="action-button">
+            <a href="{% url 'client:profile' %}">My Profile</a>
+        </div>
+    </div>
+    <div class="col-3">
+        <div class="action-button">
+            <a href="{% url 'client:search' %}">Find Friends</a>
+        </div>
+    </div>
+    <div class="col-3">
+        <div class="action-button">
+            <a href="{% url 'client:play' %}">Play Game</a>
+        </div>
+    </div>
+</div>
