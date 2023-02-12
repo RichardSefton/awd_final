@@ -44,7 +44,6 @@ def register(request):
 @require_http_methods(["GET", "POST"])
 def login_request(request):
     form = LoginForm(request.POST or None)
-    print(form.is_valid())
     if form.is_valid():
         username = form.cleaned_data.get('username')
         password = form.cleaned_data.get('password')
@@ -93,7 +92,6 @@ def search(request):
             profiles = Profile.objects.filter(user__username__icontains=search)
             profiles = profiles.exclude(user=request.user)
     
-    print(request.user, profiles)
     return render(request, 'friends/search.html', {
         "authenticated": request.user.is_authenticated,
         "profiles": profiles
