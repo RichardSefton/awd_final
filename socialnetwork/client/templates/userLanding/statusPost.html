@@ -1,3 +1,21 @@
+{% load bootstrap5 %}
+{% load static %}
 <div>
-    Status...
+    <div id="statusPostCreate" class="row">
+        <button class="btn btn-primary btn-lg btn-block" id="statusPostCreateButton">Create Post</button>
+    </div>
+    <div id="statusPostContainer" hidden>
+        <form method="POST" action="{% url 'client:newstatus' %}">
+            {% csrf_token %}
+            {% bootstrap_form status_form %}
+            
+            <div class="row">
+                <div class="text-end">
+                    <button class="btn btn-primary">Post</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="{% static 'scripts/statusPost.js' %}" type="module"></script>
 </div>

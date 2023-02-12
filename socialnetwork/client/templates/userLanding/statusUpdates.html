@@ -1,0 +1,22 @@
+{% load static %}
+<div>
+    {% for status in statuses %}
+        <div class="card">
+            <div class="card-header">
+                <div class="row text-start">
+                    <h4>{{status.user}}</h4>
+                </div>
+                <div class="row text-end">
+                    <small>{{status.date}}</small>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="container">
+                    <!-- renders newlines as linebreaks -->
+                    {{status|striptags|linebreaksbr}}
+                </div>
+            </div>
+        </div>
+        <br />
+    {% endfor %}
+</div>

@@ -1,0 +1,18 @@
+<div>
+    {% if profiles %}
+        {% for profile in profiles %}
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-8">
+                        {{profile.user}}
+                    </div>
+                    <div class="col-4">
+                        <button class="btn btn-primary">Send Request</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% endif %}
+</div>

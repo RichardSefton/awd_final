@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+from .models import User
 
 
 # Create your forms here.
@@ -14,6 +15,7 @@ class LoginForm(forms.Form):
 	def clean(self, *args, **kwargs):
 		username = self.cleaned_data.get('username')
 		password = self.cleaned_data.get('password')
+		print(username, password)
 		user = authenticate(username=username, password=password)
 		if not user:
 			raise forms.ValidationError("This user does not exist")
@@ -37,3 +39,6 @@ class NewUserForm(UserCreationForm):
 		if commit:
 			user.save()
 		return user
+
+class NewStatusPostForm(forms.Form):
+	status = forms.CharField(label='', required=True, help_text='', widget=forms.Textarea(attrs={'cols': 80, 'rows': 5}))
