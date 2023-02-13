@@ -1,3 +1,4 @@
+{% load static %}
 <div>
     {% if profiles %}
         {% for profile in profiles %}
@@ -8,11 +9,12 @@
                         {{profile.user}}
                     </div>
                     <div class="col-4">
-                        <button class="btn btn-primary">Send Request</button>
+                        <button class="btn btn-primary" profile="{{profile.id}}">Send Request</button>
                     </div>
                 </div>
             </div>
         </div>
         {% endfor %}
     {% endif %}
+    <script src="{% static 'scripts/searchResults.js' %}" type="module"></script>
 </div>
