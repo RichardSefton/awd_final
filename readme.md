@@ -18,3 +18,6 @@ https://learndjango.com/tutorials/django-login-and-logout-tutorial
 
 getCookie()
 https://stackoverflow.com/questions/43869303/django-returns-403-error-on-post-request-with-fetch
+
+Creating composite keys
+https://stackoverflow.com/questions/28712848/composite-primary-key-in-django

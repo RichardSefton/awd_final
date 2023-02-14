@@ -31,13 +31,13 @@ def index(request):
 def register(request):
     form = NewUserForm(request.POST)
     if form.is_valid():
-        if form.is_valid():
-            user = form.save()
-            user.save()
-            login(request, user)
-            messages.success(request, "Registration successful." )
-            return redirect("/")
-        messages.error(request, "Unsuccessful registration. Invalid information.")
+        user = form.save()
+        user.save()
+        login(request, user)
+        messages.success(request, "Registration successful." )
+        return redirect("/")
+    
+    messages.error(request, "Unsuccessful registration. Invalid information.")
     
     return render(request, 'auth/register.html', {
         "form": form,
@@ -109,6 +109,6 @@ def friend_request(request):
     friendRequestSerializer = FriendRequestSerializer(data=request.data)
     if (friendRequestSerializer.is_valid()):
         friendRequestSerializer.create(friendRequestSerializer.validated_data, request.user)
-        return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED, data=friendRequestSerializer.data)
 
-    return Response(status=status.HTTP_400_BAD_REQUEST)
+    return Response(status=status.HTTP_400_BAD_REQUEST, data=friendRequestSerializer.errors)

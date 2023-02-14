@@ -7,14 +7,22 @@
  */
 export const loadUserSocket = () => {
     const socket = new WebSocket(`ws://${window.location.host}/ws/user`);
+    
     socket.onmessage = (e) => {
         console.log('onmessage', {...e})
     };
+
     socket.onerror = (e, err) => {
         console.error(err);
     };
 
-    return socket;
+    if (!window.websockets)
+        window.websockets = {};
+
+    window.websockets = {
+        ...window.websockets,
+        userSocket: socket
+    }
 };
 
 /**

@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from .models import Profile, Friends
-from .consumers import ProfileSockets
+from .models import Profile, FriendRequests
 
 class FriendRequestSerializer(serializers.ModelSerializer):
     profileId = serializers.IntegerField(source='profile.id')
@@ -11,8 +10,7 @@ class FriendRequestSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data, user):
         profileId = validated_data['profile']['id']
-        friend = Profile.objects.get(id=profileId)
+        profile = Profile.objects.get(id=profileId)
         userProfile = Profile.objects.get(user=user)
-        newFriend = Friends.objects.create(profile=userProfile, friend=friend)
-        userProfile.friends.add(newFriend)
-        userProfile.save()    
+        # friendRequest = FriendRequests.objects.create(from_user=userProfile, to_user=profile)
+        # friendRequest.save()

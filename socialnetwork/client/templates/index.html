@@ -19,6 +19,8 @@
     <body>
         {% if authenticated %}
             {% include 'topnav.html' %}
+            <script src="{% static 'scripts/userLanding.js' %}" type="module"></script>
+
         {% endif %}
         
         {% block content %}{% endblock %}

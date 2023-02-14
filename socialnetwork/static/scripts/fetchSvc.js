@@ -14,7 +14,6 @@ const getCookie = (name) => {
 }
 
 export const fetchData = async(url='', method='get', headers={}, body={}) => {
-    console.log(body)
     const options = { 
         method, 
         headers: { 
@@ -25,7 +24,6 @@ export const fetchData = async(url='', method='get', headers={}, body={}) => {
         } 
     };
     if (method.toUpperCase() === 'POST') options.body = JSON.stringify(body);
-    console.log(options);
     try {
         const response = await fetch(url, options);
         if (!response.ok) throw new Error(JSON.stringify(response));

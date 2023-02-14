@@ -10,8 +10,14 @@ const handleFriendClick = async e => {
     if (profileId) {
         friendRequestLoadingSpinner(profileId);
         try {
-            const req = await fetchData('/friend-request', 'post', {}, { profileId })
-            friendRequestFinished(true, profileId);
+            const sentRequest = await fetchData('/friend-request', 'post', {}, { profileId })
+            if (sentRequest) {
+                const { userSocket } = window.websockets;
+                userSocket.send(JSON.stringify({
+                    profileId
+                }))
+                friendRequestFinished(true, profileId);
+            } else throw Error('Could not send friend request');
         } catch(err) {
             console.error(err);
             friendRequestFinished(false, profileId);

@@ -5,7 +5,8 @@ from django.dispatch import receiver
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-
+    websocket_user_channel = models.CharField(max_length=256, null=True, blank=True)
+    
     def __unicode__(self):
         return self.user.username
 
@@ -29,10 +30,17 @@ class Status(models.Model):
     def __str__(self):
         return self.status
 
-class FriendsList(models.Model):
-    
+class FriendRequests(models.Model):
+    from_user = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name='from_user')
+    to_user = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name='to_user')
+
+    class Meta:
+        unique_together = ('from_user', 'to_user')
 
 class Friends(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name='profile')
     friend = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name='friend')
-    accepted = models.BooleanField(default=False)
+    friend_since = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('profile', 'friend')
