@@ -16,3 +16,5 @@ https://django-bootstrap-v5.readthedocs.io/en/latest/templatetags.html#bootstrap
 Login Process
 https://learndjango.com/tutorials/django-login-and-logout-tutorial
 
+getCookie()
+https://stackoverflow.com/questions/43869303/django-returns-403-error-on-post-request-with-fetch

@@ -5,7 +5,6 @@ from django.dispatch import receiver
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    friends = models.ManyToManyField('self', through='Friends', blank=True)
 
     def __unicode__(self):
         return self.user.username
@@ -30,6 +29,10 @@ class Status(models.Model):
     def __str__(self):
         return self.status
 
+class FriendsList(models.Model):
+    
+
 class Friends(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name='profile')
     friend = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name='friend')
+    accepted = models.BooleanField(default=False)

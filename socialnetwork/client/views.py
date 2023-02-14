@@ -4,6 +4,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .models import Status, Profile
+from .serializers import FriendRequestSerializer
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.decorators import api_view
 
 @require_http_methods(["GET"])
 def index(request):
@@ -99,3 +103,12 @@ def search(request):
 
 def play(request):
     return render(request, 'games/play.html')
+
+@api_view(["POST"])
+def friend_request(request):
+    friendRequestSerializer = FriendRequestSerializer(data=request.data)
+    if (friendRequestSerializer.is_valid()):
+        friendRequestSerializer.create(friendRequestSerializer.validated_data, request.user)
+        return Response(status=status.HTTP_201_CREATED)
+
+    return Response(status=status.HTTP_400_BAD_REQUEST)
