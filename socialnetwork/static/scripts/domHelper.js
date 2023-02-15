@@ -1,3 +1,5 @@
+import { fetchData } from '/static/scripts/fetchSvc.js';
+
 export const friendRequestLoadingSpinner = (profileId=null) => {
     if (!profileId) return;
     const friendRequestButton = document.querySelector(`[profile="${profileId}"]`);
@@ -10,7 +12,7 @@ export const friendRequestLoadingSpinner = (profileId=null) => {
 
     friendRequestButton.append(spinnerSpan);
     friendRequestButton.append(spinnerText);
-}
+};
 
 export const friendRequestFinished = (success=false, profileId) => {
     if (!success) {
@@ -27,4 +29,19 @@ export const friendRequestFinished = (success=false, profileId) => {
     friendRequestButton.classList.add('btn-success');
     friendRequestButton.innerHTML = 'Request Sent';
     friendRequestButton.disabled = true;
-}
+};
+
+export const friendRequestNotification = async () => {
+    try {
+        const data = await fetchData('/pending-friend-requests')
+        const requestNotifications = document.getElementById('actionButtonNotification');
+        console.log(requestNotifications);
+
+        if (requestNotifications) {
+            requestNotifications.innerHTML = data.length;
+            document.getElementById('actionButtonNotificationContainer').hidden = data.length === 0;
+        }
+    } catch (err) {
+        console.error(err);
+    }
+};

@@ -14,6 +14,7 @@ const handleFriendClick = async e => {
             if (sentRequest) {
                 const { userSocket } = window.websockets;
                 userSocket.send(JSON.stringify({
+                    action: 'friend_request',
                     profileId
                 }))
                 friendRequestFinished(true, profileId);

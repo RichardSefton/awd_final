@@ -45,9 +45,13 @@ class ProfileSockets(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
-        profile_id = text_data_json['profileId']
+        action = text_data_json['action']
+        if action == 'friend_request':
+            await self.friend_request_handler(text_data_json)
+
+    async def friend_request_handler(self, json_data):
+        profile_id = json_data['profileId']
         requestProfile = await database_sync_to_async(self.get_profile)(profile_id)
-        # requestUser = await database_sync_to_async(self.get_profile_user)(requestProfile)
         profile = await database_sync_to_async(self.get_user_profile)()
         profile_user = await database_sync_to_async(self.get_profile_user)(profile)
         
@@ -67,5 +71,5 @@ class ProfileSockets(AsyncWebsocketConsumer):
         print('friend_request', self.scope["user"], event)
 
         await self.send(text_data=json.dumps({
-            'message': event['message']
+            'request_from': event['message']['request_from']
         }))

@@ -1,0 +1,2 @@
+GET http://localhost:8080/pending-friend-requests
+Cookie: csrftoken=r5CBtygjXNYwFdDPkCPeqfVOVeljTQoQ; sessionid=g5onxoi6s7a8m9ujfbq294g08733rura

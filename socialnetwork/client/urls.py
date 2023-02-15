@@ -15,4 +15,5 @@ urlpatterns = [
     path('play', views.play, name='play'),
     path('newstatus', views.newstatus_request, name='newstatus'),
     path('friend-request', views.friend_request, name='friend-request'),
+    path('pending-friend-requests', views.pending_friend_requests, name='pending-friend-requests'),
 ]

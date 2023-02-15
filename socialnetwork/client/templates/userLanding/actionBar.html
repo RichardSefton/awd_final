@@ -2,22 +2,25 @@
 <link rel="stylesheet" href="{% static 'styles/actionBar.css' %}">
 <div class="row">
     <div class="col-3">
-        <div class="action-button">
+        <div id="friendsList" class="action-button">
             <a href="{% url 'client:friendslist' %}">Friends List</a>
+            <div id="actionButtonNotificationContainer" class="notification" {% if pending_friend_requests_count == 0 %} hidden {% endif %}>
+                <div id="actionButtonNotification" class="notification-badge">{{pending_friend_requests_count}}</div>
+            </div>
         </div>
     </div>
     <div class="col-3">
-        <div class="action-button">
+        <div id="myProfile" class="action-button">
             <a href="{% url 'client:profile' %}">My Profile</a>
         </div>
     </div>
     <div class="col-3">
-        <div class="action-button">
+        <div id="findFriends" class="action-button">
             <a href="{% url 'client:search' %}">Find Friends</a>
         </div>
     </div>
     <div class="col-3">
-        <div class="action-button">
+        <div id="playGame" class="action-button">
             <a href="{% url 'client:play' %}">Play Game</a>
         </div>
     </div>

@@ -1,3 +1,5 @@
+ /usr/bin/redis-server
+
 Login form
 https://mdbootstrap.com/docs/standard/extended/login/
 

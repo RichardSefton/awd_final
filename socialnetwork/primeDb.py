@@ -45,7 +45,7 @@ newusers = [
         "password2": "Password123!"
     },
     {
-        "username": "resfton",
+        "username": "rsefton",
         "email": "richard.sefton@thenavpeople.co.uk",
         "password1": "Password123!",
         "password2": "Password123!"

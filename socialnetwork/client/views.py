@@ -3,8 +3,8 @@ from .forms import NewUserForm, LoginForm, NewStatusPostForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
-from .models import Status, Profile
-from .serializers import FriendRequestSerializer
+from .models import Status, Profile, FriendRequests
+from .serializers import FriendRequestSerializer, PendingFriendRequests
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -14,17 +14,21 @@ def index(request):
     status_form = None
     profile = None
     statuses = None
+    pending_friend_requests_count = 0
 
     #If the user is logged in, load the forms and profile
     if request.user.is_authenticated:
         status_form = NewStatusPostForm(request.POST)
         profile = Profile.objects.get(user=request.user)
         statuses = Status.objects.filter(profile=profile).order_by('-date')
+        pending_friend_requests = FriendRequests.objects.filter(to_user=profile)
+        pending_friend_requests_count = pending_friend_requests.count()
 
     return render(request, 'home.html', {
         "authenticated": request.user.is_authenticated,
         "status_form": status_form,
-        "statuses": statuses
+        "statuses": statuses,
+        "pending_friend_requests_count": pending_friend_requests_count,
     })
 
 @require_http_methods(["GET", "POST"])
@@ -89,6 +93,11 @@ def profile(request):
 @require_http_methods(["GET", "POST"])
 def search(request):
     profiles = None
+    pending_friend_requests_count = 0
+
+    if request.user.is_authenticated:
+        profile = Profile.objects.get(user=request.user)
+        pending_friend_requests_count = FriendRequests.objects.filter(to_user=profile).count()
 
     if request.method == "POST":
         search = request.POST['search']
@@ -98,7 +107,9 @@ def search(request):
     
     return render(request, 'friends/search.html', {
         "authenticated": request.user.is_authenticated,
-        "profiles": profiles
+        "profiles": profiles,
+        "profile": profile,
+        "pending_friend_requests_count": pending_friend_requests_count,
     })
 
 def play(request):
@@ -112,3 +123,14 @@ def friend_request(request):
         return Response(status=status.HTTP_201_CREATED, data=friendRequestSerializer.data)
 
     return Response(status=status.HTTP_400_BAD_REQUEST, data=friendRequestSerializer.errors)
+
+@api_view(["GET"])
+def pending_friend_requests(request):
+    profile = Profile.objects.get(user=request.user)
+    friend_requests = FriendRequests.objects.filter(to_user=profile)
+    pendingFriendRequestsForm = PendingFriendRequests(friend_requests, many=True)
+    print(pendingFriendRequestsForm)
+    # if pendingFriendRequestCountForm.is_valid():
+    return Response(status=status.HTTP_200_OK, data=pendingFriendRequestsForm.data)
+
+    # return Response(status=status.HTTP_400_BAD_REQUEST, data=pendingFriendRequestCountForm.errors)

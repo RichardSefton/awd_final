@@ -1,3 +1,5 @@
+import { friendRequestNotification } from '/static/scripts/domHelper.js';
+
 /**
  * Function sets up the general active user socket and returns it.
  * 
@@ -9,7 +11,7 @@ export const loadUserSocket = () => {
     const socket = new WebSocket(`ws://${window.location.host}/ws/user`);
     
     socket.onmessage = (e) => {
-        console.log('onmessage', {...e})
+        friendRequestNotification();
     };
 
     socket.onerror = (e, err) => {
