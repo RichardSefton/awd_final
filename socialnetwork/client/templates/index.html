@@ -19,8 +19,10 @@
     <body>
         {% if authenticated %}
             {% include 'topnav.html' %}
+            <br />
+            {% include 'actionBar.html' %}
+            <br />
             <script src="{% static 'scripts/userLanding.js' %}" type="module"></script>
-
         {% endif %}
         
         {% block content %}{% endblock %}

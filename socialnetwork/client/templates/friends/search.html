@@ -6,8 +6,6 @@
 
 
 {% block content %}
-    {% include 'userLanding/actionBar.html' %}
-    <br />
     <div class="container">
         <form method="POST" action="{% url 'client:search'%}">
             {% csrf_token %}
