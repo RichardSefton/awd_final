@@ -9,7 +9,7 @@ const handleFriendClick = async e => {
     if (profileId) {
         friendRequestLoadingSpinner(profileId);
         try {
-            const sentRequest = await fetchData('/friend-request', 'post', {}, { profileId })
+            const sentRequest = await fetchData('/api/friend-request', 'post', {}, { profileId })
             if (sentRequest) {
                 const { userSocket } = window.websockets;
                 userSocket.send(JSON.stringify({

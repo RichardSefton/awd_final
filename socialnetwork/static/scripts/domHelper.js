@@ -33,7 +33,7 @@ export const friendRequestFinished = (success=false, profileId) => {
 
 export const friendRequestNotification = async () => {
     try {
-        const data = await fetchData('/pending-friend-requests')
+        const data = await fetchData('/api/pending-friend-requests')
         const requestNotifications = document.getElementById('actionButtonNotification');
         console.log(requestNotifications);
 

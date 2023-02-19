@@ -6,7 +6,7 @@ const handleFriendRequestAcceptClick = async (e) => {
     const profileId = button.attributes['profile'].value;
     
     try {
-        await fetchData(`/friends/${profileId}/confirm`, 'POST', {}, { profileId });
+        await fetchData(`/api/friends/${profileId}/confirm`, 'POST', {}, { profileId });
         location.reload();
     } catch(err) {
         console.error(err);
@@ -19,7 +19,7 @@ const handleFriendRequestCancelClick = async (e) => {
     const profileId = button.attributes['cancel'].value;
 
     try {
-        await fetchData(`/friends/${profileId}/cancel`, 'POST', {}, { profileId });
+        await fetchData(`/api/friends/${profileId}/cancel`, 'POST', {}, { profileId });
         location.reload();
     } catch(err) {
         console.error(err);
@@ -32,7 +32,7 @@ const handleFriendRequestDeclineClick = async (e) => {
     const profileId = button.attributes['decline'].value;
 
     try {
-        await fetchData(`/friends/${profileId}/decline`, 'POST', {}, { profileId });
+        await fetchData(`/api/friends/${profileId}/decline`, 'POST', {}, { profileId });
         location.reload();
     } catch(err) {
         console.error(err);
@@ -45,7 +45,7 @@ const handleUnfriendRequestClick = async (e) => {
     const profileId = button.attributes['friend'].value;
 
     try {
-        await fetchData(`/friends/${profileId}/unfriend`, 'POST', {}, { profileId });
+        await fetchData(`/api/friends/${profileId}/unfriend`, 'POST', {}, { profileId });
         location.reload();
     } catch(err) {
         console.error(err);
