@@ -5,18 +5,24 @@
             <tbody>
                 {% for friend_request in pending_friend_requests %}
                     <tr>
-                        <td width="90%">{{friend_request.from_user.user}}</td>
+                        <td width="80%">{{friend_request.from_user.user}}</td>
                         <td>
                             <button profile="{{friend_request.from_user.id}}" class="btn btn-success">Accept</button>
+                        </td>
+                        <td>
+                            <button decline="{{friend_request.from_user.id}}" class="btn btn-danger">Decline</button>
                         </td>
                     </tr>
                 {% endfor %}
                 {% if user_friend_requests_count > 0 %}
                     {% for request in user_friend_requests %}
                         <tr>
-                            <td width="90%">{{request.to_user.user}}</td>
-                            <td>
+                            <td width="80%">{{request.to_user.user}}</td>
+                            <td width="10%">
                                 <button class="btn btn-primary" disabled="true">Pending</button>
+                            </td>
+                            <td width="10%">
+                                <button cancel="{{request.to_user.id}}" class="btn btn-danger">Cancel</button>
                             </td>
                         </tr>
                     {% endfor %}

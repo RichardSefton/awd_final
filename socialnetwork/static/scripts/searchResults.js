@@ -6,7 +6,6 @@ const handleFriendClick = async e => {
     const { target: { attributes: { profile: { value } } } } = e;
     const profileId = parseInt(value);
 
-
     if (profileId) {
         friendRequestLoadingSpinner(profileId);
         try {

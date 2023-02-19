@@ -11,12 +11,66 @@ const handleFriendRequestAcceptClick = async (e) => {
     } catch(err) {
         console.error(err);
     }
-}
+};
+
+const handleFriendRequestCancelClick = async (e) => {
+    e.preventDefault();
+    const button = e.target;
+    const profileId = button.attributes['cancel'].value;
+
+    try {
+        await fetchData(`/friends/${profileId}/cancel`, 'POST', {}, { profileId });
+        location.reload();
+    } catch(err) {
+        console.error(err);
+    }
+};
+
+const handleFriendRequestDeclineClick = async (e) => {
+    e.preventDefault();
+    const button = e.target;
+    const profileId = button.attributes['decline'].value;
+
+    try {
+        await fetchData(`/friends/${profileId}/decline`, 'POST', {}, { profileId });
+        location.reload();
+    } catch(err) {
+        console.error(err);
+    }
+};
+
+const handleUnfriendRequestClick = async (e) => {
+    e.preventDefault();
+    const button = e.target;
+    const profileId = button.attributes['friend'].value;
+
+    try {
+        await fetchData(`/friends/${profileId}/unfriend`, 'POST', {}, { profileId });
+        location.reload();
+    } catch(err) {
+        console.error(err);
+    }
+};
 
 const pendingFriendsListLoaded = () => {
-    const prndingRequestButtons = document.querySelectorAll('[profile]')
-    for(let i = 0; i < prndingRequestButtons.length; i++) {
-        prndingRequestButtons[i].addEventListener('click', handleFriendRequestAcceptClick);
+    const pendingRequestButtons = document.querySelectorAll('[profile]')
+    for(let i = 0; i < pendingRequestButtons.length; i++) {
+        pendingRequestButtons[i].addEventListener('click', handleFriendRequestAcceptClick);
+    }
+
+    const cancelRequestButtons = document.querySelectorAll('[cancel]');
+    for(let i = 0; i < cancelRequestButtons.length; i++) {
+        cancelRequestButtons[i].addEventListener('click', handleFriendRequestCancelClick);
+    }
+
+    const declineRequestButtons = document.querySelectorAll('[decline]');
+    for(let i = 0; i < declineRequestButtons.length; i++) {
+        declineRequestButtons[i].addEventListener('click', handleFriendRequestDeclineClick);
+    }
+
+    const unfriendButtons = document.querySelectorAll('[friend]');
+    for(let i = 0; i < unfriendButtons.length; i++) {
+        unfriendButtons[i].addEventListener('click', handleUnfriendRequestClick);
     }
 };
 

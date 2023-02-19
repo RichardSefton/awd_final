@@ -92,24 +92,47 @@ def profile(request):
 
 @require_http_methods(["GET", "POST"])
 def search(request):
+    if not request.user.is_authenticated:
+        return redirect('/')
+
     profiles = None
+    user_friend_requests_count = 0
+    user_friend_requests = None
+    pending_friend_requests = None
     pending_friend_requests_count = 0
+    current_friends = None
 
     if request.user.is_authenticated:
         profile = Profile.objects.get(user=request.user)
-        pending_friend_requests_count = FriendRequests.objects.filter(to_user=profile).count()
+        user_friend_requests = FriendRequests.objects.filter(from_user=profile)
+        user_friend_requests_count = user_friend_requests.count()
+        pending_friend_requests = FriendRequests.objects.filter(to_user=profile)
+        pending_friend_requests_count = pending_friend_requests.count()
 
     if request.method == "POST":
         search = request.POST['search']
         if not search == "":
             profiles = Profile.objects.filter(user__username__icontains=search)
             profiles = profiles.exclude(user=request.user)
+            for user_request in user_friend_requests:
+                profiles = profiles.exclude(user=user_request.from_user.user)
+                profiles = profiles.exclude(user=user_request.to_user.user)
+            for pending_request in pending_friend_requests:
+                profiles = profiles.exclude(user=pending_request.from_user.user)
+                profiles = profiles.exclude(user=pending_request.to_user.user)
+            current_friends = Friends.objects.filter(profile=profile)
+            for friend in current_friends:
+                profiles = profiles.exclude(user=friend.friend.user)
+
     
     return render(request, 'friends/search.html', {
         "authenticated": request.user.is_authenticated,
         "profiles": profiles,
         "profile": profile,
+        "user_friend_requests_count": user_friend_requests_count,
+        "user_friend_requests": user_friend_requests,
         "pending_friend_requests_count": pending_friend_requests_count,
+        "pending_friend_requests": pending_friend_requests,
     })
 
 def play(request):
@@ -133,6 +156,10 @@ def pending_friend_requests(request):
     return Response(status=status.HTTP_200_OK, data=pendingFriendRequestsForm.data)
 
 def friends_list(request):
+    #If we are not authenticated, redirect. 
+    if not request.user.is_authenticated:
+        return redirect('/')
+
     pending_friend_requests = None
     pending_friend_requests_count = 0
     user_friend_requests = None
@@ -142,7 +169,6 @@ def friends_list(request):
 
     if request.user.is_authenticated:
         profile = Profile.objects.get(user=request.user)
-        print(profile.id)
         pending_friend_requests = FriendRequests.objects.filter(to_user=profile)
         pending_friend_requests_count = pending_friend_requests.count()
         user_friend_requests = FriendRequests.objects.filter(from_user=profile)
@@ -162,21 +188,83 @@ def friends_list(request):
 
 @api_view(["POST"])
 def confirm_friend_request(request, profile_id):
-    print(profile_id);
     from_user = Profile.objects.get(id=profile_id)
     to_user = Profile.objects.get(user=request.user)
-    friend_request = FriendRequests.objects.filter(from_user=from_user, to_user=to_user)
-    print(friend_request)
 
-    if friend_request.count() == 1:
-        friend = Friends(profile=from_user, friend=to_user)
-        print(friend)
-        friend.save()
+    try:
+        friend_request = FriendRequests.objects.get(from_user=from_user, to_user=to_user)
         friend_request.delete()
-        friend_request.save()
-        
+        friend = Friends(profile=from_user, friend=to_user)
+        friend.save()
+        friend = Friends(profile=to_user, friend=from_user)
+        friend.save()
+    except FriendRequests.DoesNotExist:
+        friend_request = None
 
-        return Response(status=status.HTTP_200_OK)
+    try:
+        friend_request = FriendRequests.objects.get(from_user=to_user, to_user=from_user)
+        friend_request.delete()
+    except FriendRequests.DoesNotExist:
+        friend_request = None
 
-    return Response(status=status.HTTP_400_BAD_REQUEST)
-        
+    return Response(status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+def cancel_friend_request(request, profile_id):
+    from_user = Profile.objects.get(user=request.user)
+    to_user = Profile.objects.get(id=profile_id)
+    
+    try:
+        friend_request = FriendRequests.objects.get(from_user=from_user, to_user=to_user)
+        friend_request.delete()
+    except FriendRequests.DoesNotExist:
+        friend_request = None
+
+    #Need to perform the same action for the other user
+    try:
+        friend_request = FriendRequests.objects.get(from_user=to_user, to_user=from_user)
+        friend_request.delete()
+    except FriendRequests.DoesNotExist:
+        friend_request = None
+
+    return Response(status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+def decline_friend_request(request, profile_id):
+    from_user = Profile.objects.get(id=profile_id)
+    to_user = Profile.objects.get(user=request.user)
+    
+    try:
+        friend_request = FriendRequests.objects.get(from_user=from_user, to_user=to_user)
+        friend_request.delete()
+    except FriendRequests.DoesNotExist:
+        friend_request = None
+
+    #Need to perform the same action for the other user
+    try:
+        friend_request = FriendRequests.objects.get(from_user=to_user, to_user=from_user)
+        friend_request.delete()
+    except FriendRequests.DoesNotExist:
+        friend_request = None
+
+    return Response(status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+def unfriend_request(request, profile_id):
+    profile = Profile.objects.get(user=request.user)
+    friend = Profile.objects.get(id=profile_id)
+    
+    try:
+        friend_record = Friends.objects.get(profile=profile, friend=friend)
+        friend_record.delete()
+    except FriendRequests.DoesNotExist:
+        friend_record = None
+
+    #Need to perform the same action for the other user
+    try:
+        friend_record = Friends.objects.get(profile=friend, friend=profile)
+        friend_record.delete()
+    except FriendRequests.DoesNotExist:
+        friend_record = None
+
+    return Response(status=status.HTTP_200_OK)

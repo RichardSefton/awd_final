@@ -2,19 +2,57 @@
 <div>
     {% if profiles %}
         {% for profile in profiles %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-8">
+                            {{profile.user}}
+                        </div>
+                        <div class="col-4">
+                            <button class="btn btn-primary" profile="{{profile.id}}">Send Request</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if user_friend_requests %}
+        {% for user_request in user_friend_requests %}
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <a>{{user_request.to_user.user}}</a>
+                        </div>
+                        <div class="col-4">
+                            <a href="{% url 'client:friends-list' %}">Manage</a>
+                        </div>
+                        <div class="col-4">
+                            <button class="btn btn-primary" disabled>Pending</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+    {% if pending_friend_requests %}
+    {% for pending_request in pending_friend_requests %}
         <div class="card">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-8">
-                        {{profile.user}}
+                    <div class="col-4">
+                        <a>{{pending_request.from_user.user}}</a>
                     </div>
                     <div class="col-4">
-                        <button class="btn btn-primary" profile="{{profile.id}}">Send Request</button>
+                        <a href="{% url 'client:friends-list' %}">Manage</a>
+                    </div>
+                    <div class="col-4">
+                        <button class="btn btn-primary" disabled>Pending</button>
                     </div>
                 </div>
             </div>
         </div>
-        {% endfor %}
-    {% endif %}
+    {% endfor %}
+{% endif %}
     <script src="{% static 'scripts/searchResults.js' %}" type="module"></script>
 </div>

@@ -12,6 +12,7 @@ class ProfileSockets(AsyncWebsocketConsumer):
     
     async def connect(self):
         self.user = self.scope["user"]
+        print('connect', "user_"+str(self.user.id), self.channel_name)
         await self.channel_layer.group_add(
             "user_"+str(self.user.id),
             self.channel_name
@@ -56,6 +57,9 @@ class ProfileSockets(AsyncWebsocketConsumer):
         profile_user = await database_sync_to_async(self.get_profile_user)(profile)
         
         print(self.channel_layer)
+
+        if (requestProfile.websocket_user_channel == None):
+            requestProfile.websocket_user_channel = "blank"
 
         await self.channel_layer.send(
             requestProfile.websocket_user_channel,
