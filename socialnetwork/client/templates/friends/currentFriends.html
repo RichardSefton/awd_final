@@ -1,0 +1,17 @@
+{% if current_friends_count > 0 %}
+    <div class="container">
+        <h3>Friends List</h3>
+        <table class="table">
+            <tbody>
+                {% for current_friend in current_friends %}
+                    <tr>
+                        <td width="90%">{{current_friend.friend.user}}</td>
+                        <td>
+                        
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}

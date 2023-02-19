@@ -26,8 +26,12 @@ export const fetchData = async(url='', method='get', headers={}, body={}) => {
     if (method.toUpperCase() === 'POST') options.body = JSON.stringify(body);
     try {
         const response = await fetch(url, options);
+        console.log(response);
         if (!response.ok) throw new Error(JSON.stringify(response));
-        return await response.json();
+        if (response.headers['content-type'].includes('application/json'))
+            return await response.json();
+
+        return {};
     } catch(err) {
         throw err;
     }

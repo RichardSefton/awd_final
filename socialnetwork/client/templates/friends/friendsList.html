@@ -1,0 +1,16 @@
+{% extends 'home.html' %}
+{% load static %}
+{% load bootstrap5 %}
+
+{% block title %}Friends List{% endblock %}
+
+{% block content %}
+    <div class="container">
+        {% include 'userLanding/actionBar.html' %}
+        <br />
+        {% include 'friends/pendingRequests.html' %}
+        <br />
+        {% include 'friends/currentFriends.html' %}
+    </div>
+    <script src="{% static 'scripts/friendsList.js' %}" type="module"></script>
+{% endblock %}

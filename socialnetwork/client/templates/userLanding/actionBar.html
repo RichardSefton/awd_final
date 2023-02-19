@@ -3,7 +3,7 @@
 <div class="row">
     <div class="col-3">
         <div id="friendsList" class="action-button">
-            <a href="{% url 'client:friendslist' %}">Friends List</a>
+            <a href="{% url 'client:friends-list' %}">Friends List</a>
             <div id="actionButtonNotificationContainer" class="notification" {% if pending_friend_requests_count == 0 %} hidden {% endif %}>
                 <div id="actionButtonNotification" class="notification-badge">{{pending_friend_requests_count}}</div>
             </div>

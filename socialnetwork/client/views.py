@@ -3,7 +3,7 @@ from .forms import NewUserForm, LoginForm, NewStatusPostForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
-from .models import Status, Profile, FriendRequests
+from .models import Status, Profile, FriendRequests, Friends
 from .serializers import FriendRequestSerializer, PendingFriendRequests
 from rest_framework.response import Response
 from rest_framework import status
@@ -130,7 +130,53 @@ def pending_friend_requests(request):
     friend_requests = FriendRequests.objects.filter(to_user=profile)
     pendingFriendRequestsForm = PendingFriendRequests(friend_requests, many=True)
     print(pendingFriendRequestsForm)
-    # if pendingFriendRequestCountForm.is_valid():
     return Response(status=status.HTTP_200_OK, data=pendingFriendRequestsForm.data)
 
-    # return Response(status=status.HTTP_400_BAD_REQUEST, data=pendingFriendRequestCountForm.errors)
+def friends_list(request):
+    pending_friend_requests = None
+    pending_friend_requests_count = 0
+    user_friend_requests = None
+    user_friend_requests_count = 0
+    current_friends = None
+    current_friends_count = 0
+
+    if request.user.is_authenticated:
+        profile = Profile.objects.get(user=request.user)
+        print(profile.id)
+        pending_friend_requests = FriendRequests.objects.filter(to_user=profile)
+        pending_friend_requests_count = pending_friend_requests.count()
+        user_friend_requests = FriendRequests.objects.filter(from_user=profile)
+        user_friend_requests_count = user_friend_requests.count()
+        current_friends = Friends.objects.filter(profile=profile)
+        current_friends_count = current_friends.count()
+
+    return render(request, 'friends/friendsList.html', {
+        "pending_friend_requests_count": pending_friend_requests_count,
+        "pending_friend_requests": pending_friend_requests,
+        "user_friend_requests": user_friend_requests,
+        "user_friend_requests_count": user_friend_requests_count,
+        "authenticated": request.user.is_authenticated,
+        "current_friends": current_friends,
+        "current_friends_count": current_friends_count
+    })
+
+@api_view(["POST"])
+def confirm_friend_request(request, profile_id):
+    print(profile_id);
+    from_user = Profile.objects.get(id=profile_id)
+    to_user = Profile.objects.get(user=request.user)
+    friend_request = FriendRequests.objects.filter(from_user=from_user, to_user=to_user)
+    print(friend_request)
+
+    if friend_request.count() == 1:
+        friend = Friends(profile=from_user, friend=to_user)
+        print(friend)
+        friend.save()
+        friend_request.delete()
+        friend_request.save()
+        
+
+        return Response(status=status.HTTP_200_OK)
+
+    return Response(status=status.HTTP_400_BAD_REQUEST)
+        

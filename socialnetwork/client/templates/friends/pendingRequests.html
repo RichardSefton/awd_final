@@ -1,0 +1,27 @@
+{% if pending_friend_requests_count > 0 or user_friend_requests_count > 0 %}
+    <div class="container">
+        <h3>Friend Requests</h3>
+        <table class="table">
+            <tbody>
+                {% for friend_request in pending_friend_requests %}
+                    <tr>
+                        <td width="90%">{{friend_request.from_user.user}}</td>
+                        <td>
+                            <button profile="{{friend_request.from_user.id}}" class="btn btn-success">Accept</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+                {% if user_friend_requests_count > 0 %}
+                    {% for request in user_friend_requests %}
+                        <tr>
+                            <td width="90%">{{request.to_user.user}}</td>
+                            <td>
+                                <button class="btn btn-primary" disabled="true">Pending</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}

@@ -16,4 +16,6 @@ urlpatterns = [
     path('newstatus', views.newstatus_request, name='newstatus'),
     path('friend-request', views.friend_request, name='friend-request'),
     path('pending-friend-requests', views.pending_friend_requests, name='pending-friend-requests'),
+    path('friends-list', views.friends_list, name='friends-list'),
+    path('friends/<int:profile_id>/confirm', views.confirm_friend_request, name='confirm-friend-request'),
 ]
