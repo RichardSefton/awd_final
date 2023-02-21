@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.contrib.auth.forms import UserCreationForm
 # from django.contrib.auth.models import User
-from .models import User
+from .models import User, Profile
 
 
 # Create your forms here.
@@ -41,3 +41,15 @@ class NewUserForm(UserCreationForm):
 
 class NewStatusPostForm(forms.Form):
 	status = forms.CharField(label='', required=True, help_text='', widget=forms.Textarea(attrs={'cols': 80, 'rows': 5}))
+
+class UserProfile(forms.Form):
+	first_name = forms.CharField(label='First Name', required=False)
+	last_name = forms.CharField(label='Last Name', required=False)
+	email = forms.EmailField(label='Email', required=False)
+	phone = forms.CharField(label='Phone', required=False)
+	bio = forms.CharField(label='Bio', required=False, widget=forms.Textarea(attrs={'cols': 80, 'rows': 5}))
+	profile_pic = forms.ImageField(label='Profile Picture', required=False)
+
+	class Meta:
+		model = Profile
+

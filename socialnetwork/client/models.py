@@ -6,7 +6,11 @@ from django.dispatch import receiver
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     websocket_user_channel = models.CharField(max_length=256, null=True, blank=True)
-    
+    bio = models.CharField(max_length=4000, null=True, blank=True)
+    phone = models.CharField(max_length=32, null=True, blank=True)
+    profile_pic = models.ImageField(upload_to='profile_pics', null=True, blank=True)
+    thumbnail = models.ImageField(upload_to='profile_thumbnail', null=True, blank=True)
+
     def __unicode__(self):
         return self.user.username
 

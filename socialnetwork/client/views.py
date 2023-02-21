@@ -1,13 +1,10 @@
 from django.shortcuts import render, redirect
-from .forms import NewUserForm, LoginForm, NewStatusPostForm
+from .forms import NewUserForm, LoginForm, NewStatusPostForm, UserProfile
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
 from .models import Status, Profile, FriendRequests, Friends
-from .serializers import FriendRequestSerializer, PendingFriendRequests
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.decorators import api_view
+from django.forms.models import model_to_dict
 
 @require_http_methods(["GET"])
 def index(request):
@@ -20,7 +17,11 @@ def index(request):
     if request.user.is_authenticated:
         status_form = NewStatusPostForm(request.POST)
         profile = Profile.objects.get(user=request.user)
-        statuses = Status.objects.filter(profile=profile).order_by('-date')
+        statuses = Status.objects.filter(profile=profile)
+        friends = Friends.objects.filter(profile=profile)
+        for friend in friends:
+            statuses = statuses | Status.objects.filter(profile=friend.friend)
+        statuses = statuses.order_by('-date')
         pending_friend_requests = FriendRequests.objects.filter(to_user=profile)
         pending_friend_requests_count = pending_friend_requests.count()
 
@@ -170,8 +171,47 @@ def friends_list(request):
         "current_friends_count": current_friends_count
     })
 
+@require_http_methods(["GET", "POST"])
+def profile_request(request):
+    if not request.user.is_authenticated:
+        return redirect('/')
+
+    profile_form = None
+
+    if request.user.is_authenticated:
+        profile = Profile.objects.get(user=request.user)
+        profile_form = UserProfile(initial={
+            'first_name': profile.user.first_name,
+            'last_name': profile.user.last_name,
+            'email': profile.user.email,
+            'phone': profile.phone,
+            'bio': profile.bio,
+        })
+
+    if request.method == "POST":   
+        profile_form = UserProfile(request.POST, request.FILES) 
+        if profile_form.is_valid():
+            print(profile_form.cleaned_data)
+            if profile_form.cleaned_data.get('first_name'):
+                profile.user.first_name = profile_form.cleaned_data.get('first_name')
+            if profile_form.cleaned_data.get('last_name'):
+                profile.user.last_name = profile_form.cleaned_data.get('last_name')
+            if profile_form.cleaned_data.get('email'):
+                profile.user.email = profile_form.cleaned_data.get('email')
+            if profile_form.cleaned_data.get('phone'):
+                profile.phone = profile_form.cleaned_data.get('phone')
+            if profile_form.cleaned_data.get('bio'):
+                profile.bio = profile_form.cleaned_data.get('bio')
+            if profile_form.cleaned_data.get('profile_pic'):
+                profile.profile_pic = profile_form.cleaned_data.get('profile_pic')
+            profile.user.save()
+            profile.save()
 
 
+    return render(request, 'user/profile.html', {
+        "authenticated": request.user.is_authenticated,
+        "profile_form": profile_form
+    })
 
 
 
