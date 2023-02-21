@@ -180,13 +180,6 @@ def profile_request(request):
 
     if request.user.is_authenticated:
         profile = Profile.objects.get(user=request.user)
-        profile_form = UserProfile(initial={
-            'first_name': profile.user.first_name,
-            'last_name': profile.user.last_name,
-            'email': profile.user.email,
-            'phone': profile.phone,
-            'bio': profile.bio,
-        })
 
     if request.method == "POST":   
         profile_form = UserProfile(request.POST, request.FILES) 
@@ -210,7 +203,7 @@ def profile_request(request):
 
     return render(request, 'user/profile.html', {
         "authenticated": request.user.is_authenticated,
-        "profile_form": profile_form
+        "profile": profile
     })
 
 
