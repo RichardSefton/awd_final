@@ -1,0 +1,18 @@
+{% extends 'index.html' %}
+
+{% block scripts %}
+    <link href="https://c2a.chesstempo.com/pgnviewer/v2.5/pgnviewerext.vers1.css" media="all" rel="stylesheet" crossorigin>
+    <script defer language="javascript" src="https://c1a.chesstempo.com/pgnviewer/v2.5/pgnviewerext.bundle.vers1.js" crossorigin></script>
+    <link href="https://c1a.chesstempo.com/fonts/MaterialIcons-Regular.woff2" rel="stylesheet" crossorigin>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <ct-pgn-viewer id="chessboard">
+            [Event "Social Network Chess Games"]
+            [White "{{ profile.user }}"]
+            [Black "{{ opponent.user }}"]
+            1.
+        </ct-pgn-viewer>
+    </div>
+{% endblock %}

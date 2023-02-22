@@ -12,7 +12,8 @@ urlpatterns = [
     path('friendslist', views.friendslist, name='friendslist'),
     path('profile', views.profile_request, name='profile'),
     path('search', views.search, name='search'),
-    path('play', views.play, name='play'),
+    path('play/<int:opponent_id>/<int:game_id>', views.play, name='play'),
+    path('games', views.games, name='games'),
     path('newstatus', views.newstatus_request, name='newstatus'),
     path('friends-list', views.friends_list, name='friends-list'),
 ]

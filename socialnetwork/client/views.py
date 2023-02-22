@@ -88,9 +88,6 @@ def newstatus_request(request):
 def friendslist(request):
     return render(request, 'friends/list.html')
 
-def profile(request):
-    return render(request, 'user/profile.html')
-
 @require_http_methods(["GET", "POST"])
 def search(request):
     if not request.user.is_authenticated:
@@ -136,8 +133,28 @@ def search(request):
         "pending_friend_requests": pending_friend_requests,
     })
 
-def play(request):
-    return render(request, 'games/play.html')
+def games(request):
+    return render(request, 'games/list.html')
+
+def play(request, opponent_id, game_id):
+    profile = Profile.objects.get(user=request.user)
+    pending_friend_requests_count = 0
+    opponent = None
+
+    if request.user.is_authenticated:
+        try:
+            opponent = Profile.objects.get(id=opponent_id)
+        except Profile.DoesNotExist:
+            return redirect('/games')
+        pending_friend_requests = FriendRequests.objects.filter(to_user=profile)
+        pending_friend_requests_count = pending_friend_requests.count()
+
+    return render(request, 'games/play.html', {
+        "authenticated": request.user.is_authenticated,
+        "profile": profile,
+        "opponent": opponent,
+        "pending_friend_requests_count": pending_friend_requests_count,
+    });
 
 @require_http_methods(["GET"])
 def friends_list(request):

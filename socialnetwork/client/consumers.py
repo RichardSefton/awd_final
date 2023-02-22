@@ -77,3 +77,34 @@ class ProfileSockets(AsyncWebsocketConsumer):
         await self.send(text_data=json.dumps({
             'request_from': event['message']['request_from']
         }))
+
+class ChessSockets:   
+    def save_game():
+        return
+        
+    async def connect(self):
+        self.user = self.scope["user"]
+        print('connect', "user_"+str(self.user.id), self.channel_name)
+        await self.channel_layer.group_add(
+            "user_"+str(self.user.id),
+            self.channel_name
+        )
+
+        await database_sync_to_async(self.save_channel)()
+
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        print(self)
+        print(close_code)
+
+        await self.channel_layer.group_discard(
+            "user_"+str(self.user.id),
+            self.channel_name
+        )
+
+    async def receive(self, text_data):
+        text_data_json = json.loads(text_data)
+        action = text_data_json['action']
+        if action == 'friend_request':
+            await self.friend_request_handler(text_data_json)
