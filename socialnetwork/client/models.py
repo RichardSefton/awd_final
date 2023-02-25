@@ -48,3 +48,17 @@ class Friends(models.Model):
 
     class Meta:
         unique_together = ('profile', 'friend')
+
+class PlayerGameLink(models.Model):
+    player = models.ForeignKey(Profile, on_delete=models.DO_NOTHING)
+    accepted = models.BooleanField(default=False)
+    websocket_game_channel = models.CharField(max_length=256, null=True, blank=True)
+
+class Game(models.Model):
+    pgn_headers = models.CharField(max_length=4000, null=True, blank=True)
+    pgn = models.CharField(max_length=4000, default='1.')
+    complete = models.BooleanField(default=False)
+    result = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='result')
+    white = models.ForeignKey(PlayerGameLink, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='white')
+    black = models.ForeignKey(PlayerGameLink, on_delete=models.DO_NOTHING, null=True, blank=True, related_name='black')
+    next_move = models.CharField(max_length=32, default='white')

@@ -1,0 +1,57 @@
+{% extends 'index.html' %}
+{% load static %}
+
+{% block title %}
+    Games
+{% endblock %}
+
+{% block scripts %}
+    <script src="{% static 'scripts/gamesList.js' %}" type="module"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="card">
+            <div class="card-header text-center">
+                <h3>Current Games</h3>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    {% for game in games %}
+                        <tr>
+                            {% if game.white.player.id == profile.id %}
+                                <td width="90%">{{game.black.player.user.username}}</td>
+                            {% else %}
+                                <td width="90%">{{game.white.player.user.username}}</td>
+                            {% endif %}
+                            <td>
+                                <button play="{{game.id}}" class="btn btn-outline-success">
+                                    Play
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header text-center">
+                <h3>Friends</h3>
+            </div>
+            <div class="card-body">
+                <table class="table">
+                    {% for friend in friends %}
+                        <tr>
+                            <td width="70%">{{friend.friend.user}}</td>
+                            <td>
+                                <button invite="{{friend.friend.id}}" class="btn btn-outline-success">
+                                    Invite to Play
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}

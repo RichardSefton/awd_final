@@ -3,8 +3,9 @@ from .forms import NewUserForm, LoginForm, NewStatusPostForm, UserProfile
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
-from .models import Status, Profile, FriendRequests, Friends
-from django.forms.models import model_to_dict
+from .models import Status, Profile, FriendRequests, Friends, Game, PlayerGameLink
+from .serializers import GamesListSerializer
+from django.db.models import Q
 
 @require_http_methods(["GET"])
 def index(request):
@@ -134,26 +135,46 @@ def search(request):
     })
 
 def games(request):
-    return render(request, 'games/list.html')
+    friends = None
+    games = None
+    profile = None
 
-def play(request, opponent_id, game_id):
+    if request.user.is_authenticated:
+        profile = Profile.objects.get(user=request.user)
+        friends = Friends.objects.filter(profile=profile)
+        playerGames = PlayerGameLink.objects.filter(player=profile)
+        for playerGame in playerGames:
+            if (games == None):
+                games = Game.objects.filter(Q(white = playerGame) | Q(black = playerGame))
+            games = games | Game.objects.filter(Q(white = playerGame) | Q(black = playerGame))
+    
+    gamesList = GamesListSerializer(games, many=True)
+
+    print(gamesList.data)
+
+    return render(request, 'games/list.html', {
+        "authenticated": request.user.is_authenticated,
+        "profile": profile,
+        "friends": friends,
+        "games": gamesList.data,
+    })
+
+def play(request, game_id):
     profile = Profile.objects.get(user=request.user)
-    pending_friend_requests_count = 0
-    opponent = None
+    game = None
+
 
     if request.user.is_authenticated:
         try:
-            opponent = Profile.objects.get(id=opponent_id)
-        except Profile.DoesNotExist:
+            game = Game.objects.get(id=game_id)
+        except Game.DoesNotExist:
+            messages.error(request, "Game does not exist.")
             return redirect('/games')
-        pending_friend_requests = FriendRequests.objects.filter(to_user=profile)
-        pending_friend_requests_count = pending_friend_requests.count()
-
+        
     return render(request, 'games/play.html', {
         "authenticated": request.user.is_authenticated,
         "profile": profile,
-        "opponent": opponent,
-        "pending_friend_requests_count": pending_friend_requests_count,
+        "game": game,
     });
 
 @require_http_methods(["GET"])

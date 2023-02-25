@@ -10,4 +10,5 @@ urlpatterns = [
     path('friends/<int:profile_id>/unfriend', api.unfriend_request, name='unfriend_request'),
     path('friend-request', api.friend_request, name='friend-request'),
     path('pending-friend-requests', api.pending_friend_requests, name='pending-friend-requests'),
+    path('game/invite/<int:profile_id>', api.game_invite_request, name='game_invite'),
 ]

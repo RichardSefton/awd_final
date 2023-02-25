@@ -1,18 +1,27 @@
 {% extends 'index.html' %}
-
+{% load static %}
 {% block scripts %}
     <link href="https://c2a.chesstempo.com/pgnviewer/v2.5/pgnviewerext.vers1.css" media="all" rel="stylesheet" crossorigin>
     <script defer language="javascript" src="https://c1a.chesstempo.com/pgnviewer/v2.5/pgnviewerext.bundle.vers1.js" crossorigin></script>
     <link href="https://c1a.chesstempo.com/fonts/MaterialIcons-Regular.woff2" rel="stylesheet" crossorigin>
+    <script src="{% static 'scripts/game.js' %}" type="module"></script>
 {% endblock %}
 
 {% block content %}
     <div class="container">
-        <ct-pgn-viewer id="chessboard">
-            [Event "Social Network Chess Games"]
-            [White "{{ profile.user }}"]
-            [Black "{{ opponent.user }}"]
-            1.
+        <div class="card">
+            <div class="card-header">
+                <h3>Instructions to play:</h3>
+            </div>
+            <div class="card-body">
+                <ul>
+                    <li>Ensure the last move played is selected</li>
+                    <li>Make your move and confirm from the move selection</li>
+                </ul>
+            </div>
+        </div>
+        <ct-pgn-viewer board-highlight-move-arrow="true" board-confirmMoves="true">
+            {{game.pgn_headers}}{{game.pgn}}
         </ct-pgn-viewer>
     </div>
 {% endblock %}

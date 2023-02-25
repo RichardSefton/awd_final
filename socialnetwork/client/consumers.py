@@ -2,7 +2,7 @@ import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile, Game, PlayerGameLink
 
 class ProfileSockets(AsyncWebsocketConsumer):
     def save_channel(self):
@@ -12,7 +12,6 @@ class ProfileSockets(AsyncWebsocketConsumer):
     
     async def connect(self):
         self.user = self.scope["user"]
-        print('connect', "user_"+str(self.user.id), self.channel_name)
         await self.channel_layer.group_add(
             "user_"+str(self.user.id),
             self.channel_name
@@ -78,20 +77,31 @@ class ProfileSockets(AsyncWebsocketConsumer):
             'request_from': event['message']['request_from']
         }))
 
-class ChessSockets:   
-    def save_game():
-        return
+class GameSockets(AsyncWebsocketConsumer):   
+    def save_channel(self):
+        profile = Profile.objects.get(user=self.user)
+        game = Game.objects.get(id=self.game_id)
+        if game.white.player.id == profile.id:
+            game.white.websocket_game_channel = self.channel_name
+            game.white.accepted = True
+            game.white.save()
+        else:
+            game.black.websocket_game_channel = self.channel_name
+            game.black.accepted = True
+            game.black.save()
+        game.save()
         
     async def connect(self):
         self.user = self.scope["user"]
-        print('connect', "user_"+str(self.user.id), self.channel_name)
+        self.game_id = self.scope['url_route']['kwargs']['game_id']
+        self.game = await database_sync_to_async(Game.objects.get)(id=self.game_id)
+
         await self.channel_layer.group_add(
-            "user_"+str(self.user.id),
+            "game_"+str(self.user.id)+"_"+str(self.game_id),
             self.channel_name
         )
 
         await database_sync_to_async(self.save_channel)()
-
         await self.accept()
 
     async def disconnect(self, close_code):
@@ -99,12 +109,85 @@ class ChessSockets:
         print(close_code)
 
         await self.channel_layer.group_discard(
-            "user_"+str(self.user.id),
+            "game_"+str(self.user.id),
             self.channel_name
         )
+
+    def save_game_move(self):
+        self.game.save()
+
+    def make_player_move(self, pgn):
+        self.game.pgn = pgn
+        if (self.game.next_move == 'white'):
+            self.game.next_move = 'black'
+        else:
+            self.game.next_move = 'white'
+        self.game.save()
+
+    def get_user_from_player(self, game, player):
+        if (player == 'white'):
+            return game.white.player
+        else:
+            return game.black.player
+        
+    def get_user_profile(self):
+        return Profile.objects.get(user=self.user)
+    
+    def get_player_websocket(self, game, player):
+        if (player == 'white'):
+            return game.white.websocket_game_channel
+        else:
+            return game.black.websocket_game_channel
+
+    async def make_move(self, json_data):
+        pgn = json_data['pgn']
+        pgn = pgn.replace('\n', '')
+        pgn = pgn.replace('*', '')
+        move_made = False
+        profile = await database_sync_to_async(self.get_user_profile)()
+        whitePlayer = await database_sync_to_async(self.get_user_from_player)(self.game, 'white')
+        blackPlayer = await database_sync_to_async(self.get_user_from_player)(self.game, 'black')
+        whiteWebsocket = await database_sync_to_async(self.get_player_websocket)(self.game, 'white')
+        blackWebsocket = await database_sync_to_async(self.get_player_websocket)(self.game, 'black')
+
+        if whitePlayer.id == profile.id:
+            if self.game.next_move == 'white':
+                await database_sync_to_async(self.make_player_move)(pgn)
+                move_made = True
+        elif blackPlayer.id == profile.id:
+            if self.game.next_move == 'black':
+                await database_sync_to_async(self.make_player_move)(pgn)
+                move_made = True
+
+        if move_made:
+            await self.channel_layer.send(
+                whiteWebsocket,
+                {
+                    'type': 'send_move',
+                    'message': {
+                        'move_played': move_made,
+                    }
+                }
+            )
+            await self.channel_layer.send(
+                blackWebsocket,
+                {
+                    'type': 'send_move',
+                    'message': {
+                        'move_played': move_made,  
+                    }
+                }
+            )
 
     async def receive(self, text_data):
         text_data_json = json.loads(text_data)
         action = text_data_json['action']
-        if action == 'friend_request':
-            await self.friend_request_handler(text_data_json)
+        if action == 'move':
+            await self.make_move(text_data_json)
+
+    async def send_move(self, event):
+        print('send_move', self.scope["user"], event)
+
+        await self.send(text_data=json.dumps({
+            'move_played': event['message']['move_played']
+        }))

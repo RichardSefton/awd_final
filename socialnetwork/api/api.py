@@ -3,10 +3,10 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 
 #models
-from client.models import Profile, FriendRequests, Friends
+from client.models import Profile, FriendRequests, Friends, Game, PlayerGameLink
 
 #serializers
-from client.serializers import FriendRequestSerializer, PendingFriendRequests
+from client.serializers import FriendRequestSerializer, PendingFriendRequests, GameRequestSerializer
 
 @api_view(["POST"])
 def friend_request(request):
@@ -109,3 +109,28 @@ def unfriend_request(request, profile_id):
         friend_record = None
 
     return Response(status=status.HTTP_200_OK)
+
+@api_view(["POST"])
+def game_invite_request(request, profile_id):
+    profile = Profile.objects.get(user=request.user)
+    friend = Profile.objects.get(id=profile_id)
+
+    try:
+        friend_record = Friends.objects.get(profile=profile, friend=friend)
+    except FriendRequests.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND, data={"message": "You are not friends with this user"})
+
+    blank_pgn_headers = '[Event "Casual Game"]\n[Site "Social Network"]\n[White "' + str(friend.user) + '"]\n[Black "' + str(profile.user) + '"]\n'
+    game = Game.objects.create(pgn_headers=blank_pgn_headers)
+    game.save()
+    white = PlayerGameLink.objects.create(player=friend, accepted=False)
+    black = PlayerGameLink.objects.create(player=profile, accepted=True)
+    white.save()
+    black.save()
+    game.white = white
+    game.black = black
+    game.save()
+
+    game_request_serializer = GameRequestSerializer(game)
+
+    return Response(status=status.HTTP_200_OK, data=game_request_serializer.data)
