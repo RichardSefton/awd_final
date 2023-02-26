@@ -23,3 +23,9 @@ https://stackoverflow.com/questions/43869303/django-returns-403-error-on-post-re
 
 Creating composite keys
 https://stackoverflow.com/questions/28712848/composite-primary-key-in-django
+
+Getting login to work in RegisterView
+https://stackoverflow.com/questions/26510242/django-how-to-login-user-directly-after-registration-using-generic-createview
+
+Getting context in post function
+https://stackoverflow.com/questions/71614911/django-access-context-data-in-post-and-get

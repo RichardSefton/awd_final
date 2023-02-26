@@ -3,116 +3,183 @@ from .forms import NewUserForm, LoginForm, NewStatusPostForm, UserProfile
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
 from django.views.decorators.http import require_http_methods
-from .models import Status, Profile, FriendRequests, Friends, Game, PlayerGameLink
+from .models import User, Status, Profile, FriendRequests, Friends, Game, PlayerGameLink
 from .serializers import GamesListSerializer
 from django.db.models import Q
+from django.views.generic import View, TemplateView, ListView, DetailView, CreateView, FormView
 
-@require_http_methods(["GET"])
-def index(request):
-    status_form = None
-    profile = None
-    statuses = None
-    pending_friend_requests_count = 0
+class HomePage(ListView):
+    model = Status
+    context_object_name = 'statuses'
+    template_name = 'home.html'
 
-    #If the user is logged in, load the forms and profile
-    if request.user.is_authenticated:
-        status_form = NewStatusPostForm(request.POST)
-        profile = Profile.objects.get(user=request.user)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # This page handles both authenticated and unauthenticated users
+        # As such, if the user is not authenticated this method will result in
+        # errors. So we need to return early if the user is not authenticated.
+        if not self.request.user.is_authenticated:
+            return context
+
+        profile = Profile.objects.get(user=self.request.user)
+        context["profile"] = profile
+        context["authenticated"] = self.request.user.is_authenticated
+        context["status_form"] = NewStatusPostForm(self.request.POST)
+        
         statuses = Status.objects.filter(profile=profile)
         friends = Friends.objects.filter(profile=profile)
         for friend in friends:
             statuses = statuses | Status.objects.filter(profile=friend.friend)
-        statuses = statuses.order_by('-date')
+        statuses = statuses.order_by('-date') 
+        context["statuses"] = statuses
+
         pending_friend_requests = FriendRequests.objects.filter(to_user=profile)
-        pending_friend_requests_count = pending_friend_requests.count()
+        context["pending_friend_requests_count"] = pending_friend_requests.count()
 
-    return render(request, 'home.html', {
-        "authenticated": request.user.is_authenticated,
-        "status_form": status_form,
-        "statuses": statuses,
-        "pending_friend_requests_count": pending_friend_requests_count,
-    })
+        return context
 
-@require_http_methods(["GET", "POST"])
-def register(request):
-    form = NewUserForm(request.POST)
-    if form.is_valid():
+class RegisterPage(CreateView):
+    model = User
+    template_name = 'auth/register.html'
+    form_class = NewUserForm
+    success_url = '/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["authenticated"] = self.request.user.is_authenticated
+        context["title"] = "Register"
+        return context
+
+    def form_valid(self, form):
+        #https://stackoverflow.com/questions/26510242/django-how-to-login-user-directly-after-registration-using-generic-createview
+        valid = super(RegisterPage, self).form_valid(form)
         user = form.save()
+        print(user)
         user.save()
-        login(request, user)
-        messages.success(request, "Registration successful." )
-        return redirect("/")
-    
-    messages.error(request, "Unsuccessful registration. Invalid information.")
-    
-    return render(request, 'auth/register.html', {
-        "form": form,
-        "authenticated": request.user.is_authenticated,
-        "title": "Register"
-    })
+        login_request = login(self.request, user)
+        print(login_request)
+        messages.success(self.request, "Registration successful.")
+        return valid
 
-@require_http_methods(["GET", "POST"])
-def login_request(request):
-    form = LoginForm(request.POST or None)
-    if form.is_valid():
+class LoginPage(FormView):
+    model = User
+    template_name = 'auth/login.html'
+    form_class = LoginForm
+    success_url = '/'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["authenticated"] = self.request.user.is_authenticated
+        context["title"] = "Login"
+        return context
+    
+    def form_valid(self, form):
+        valid = super(LoginPage, self).form_valid(form)
         username = form.cleaned_data.get('username')
         password = form.cleaned_data.get('password')
         user = authenticate(username=username, password=password)
-        login(request, user)
+        login(self.request, user)
+        messages.success(self.request, "Login successful.")
+        return valid
+
+class Logout(View):
+    def get(self, request):
+        logout(request)
+        messages.info(request, "Logged out successfully!")
+        return redirect("/")
+    
+class NewStatusPage(View):
+    model = Status
+    
+    def post(self, request):
+        form = NewStatusPostForm(request.POST)
+        if form.is_valid():
+            user = request.user
+            profile = Profile.objects.get(user=user)
+            newstatus = Status(profile=profile, status=form.cleaned_data.get('status'))
+            newstatus.save()
+            return redirect('/')
+        
+        messages.info(request, "Unable to post your status")
         return redirect('/')
     
-    return render(request, 'auth/login.html', {
-        "form": form,
-        "authenticated": request.user.is_authenticated,
-        "title": "Login"
-    })
+class ProfilePage(FormView):
+    model = Profile
+    template_name = 'user/profile.html'
+    form_class = UserProfile
+    success_url = '/profile'
 
-@require_http_methods(["GET"])
-def logout_request(request):
-    logout(request)
-    messages.info(request, "Logged out successfully!")
-    return redirect("/")
-
-@require_http_methods(["POST"])
-def newstatus_request(request):
-    form = NewStatusPostForm(request.POST)
-    if form.is_valid():
-        user = request.user
-        profile = Profile.objects.get(user=user)
-        newstatus = Status(profile=profile, status=form.cleaned_data.get('status'))
-        newstatus.save()
-        return redirect('/')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["authenticated"] = self.request.user.is_authenticated
+        
+        profile = Profile.objects.get(user=self.request.user)
+        context["profile"] = profile
+        
+        return context
     
-    messages.info(request, "Unable to post your status")
-    return redirect('/')
+    def form_valid(self, form):
+        valid = super(ProfilePage, self).form_valid(form)
+        profile = Profile.objects.get(user=self.request.user)
+        if form.cleaned_data.get('first_name'):
+            profile.user.first_name = form.cleaned_data.get('first_name')
+        if form.cleaned_data.get('last_name'):
+            profile.user.last_name = form.cleaned_data.get('last_name')
+        if form.cleaned_data.get('email'):
+            profile.user.email = form.cleaned_data.get('email')
+        if form.cleaned_data.get('phone'):
+            profile.phone = form.cleaned_data.get('phone')
+        if form.cleaned_data.get('bio'):
+            profile.bio = form.cleaned_data.get('bio')
+        if form.cleaned_data.get('profile_pic'):
+            profile.profile_pic = form.cleaned_data.get('profile_pic')
+        profile.user.save()
+        profile.save()
+        messages.success(self.request, "Profile updated successfully.")
+        return valid
+    
+class FriendListPage(ListView):
+    model = Friends
+    template_name = 'friends/friendsList.html'
 
-def friendslist(request):
-    return render(request, 'friends/list.html')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        context["authenticated"] = self.request.user.is_authenticated
 
-@require_http_methods(["GET", "POST"])
-def search(request):
-    if not request.user.is_authenticated:
-        return redirect('/')
-
-    profiles = None
-    user_friend_requests_count = 0
-    user_friend_requests = None
-    pending_friend_requests = None
-    pending_friend_requests_count = 0
-    current_friends = None
-
-    if request.user.is_authenticated:
-        profile = Profile.objects.get(user=request.user)
-        user_friend_requests = FriendRequests.objects.filter(from_user=profile)
-        user_friend_requests_count = user_friend_requests.count()
+        profile = Profile.objects.get(user=self.request.user)
         pending_friend_requests = FriendRequests.objects.filter(to_user=profile)
-        pending_friend_requests_count = pending_friend_requests.count()
+        user_friend_requests = FriendRequests.objects.filter(from_user=profile)
+        current_friends = Friends.objects.filter(profile=profile)
+        
+        context["pending_friend_requests"] = pending_friend_requests
+        context["pending_friend_requests_count"] = pending_friend_requests.count()
+        context["user_friend_requests"] = user_friend_requests
+        context["user_friend_requests_count"] = user_friend_requests.count()
+        context["current_friends"] = current_friends
+        context["current_friends_count"] = current_friends.count()
 
-    if request.method == "POST":
+        return context
+
+class SearchPage(TemplateView):
+    template_name = 'friends/search.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["authenticated"] = self.request.user.is_authenticated
+        return context
+    
+    def post(self, request, **kwargs):
+        context = self.get_context_data(**kwargs)
         search = request.POST['search']
         if not search == "":
+            profile = Profile.objects.get(user=request.user)
             profiles = Profile.objects.filter(user__username__icontains=search)
             profiles = profiles.exclude(user=request.user)
+            user_friend_requests = FriendRequests.objects.filter(from_user=profile)
+            pending_friend_requests = FriendRequests.objects.filter(to_user=profile)
+
             for user_request in user_friend_requests:
                 profiles = profiles.exclude(user=user_request.from_user.user)
                 profiles = profiles.exclude(user=user_request.to_user.user)
@@ -123,126 +190,63 @@ def search(request):
             for friend in current_friends:
                 profiles = profiles.exclude(user=friend.friend.user)
 
-    
-    return render(request, 'friends/search.html', {
-        "authenticated": request.user.is_authenticated,
-        "profiles": profiles,
-        "profile": profile,
-        "user_friend_requests_count": user_friend_requests_count,
-        "user_friend_requests": user_friend_requests,
-        "pending_friend_requests_count": pending_friend_requests_count,
-        "pending_friend_requests": pending_friend_requests,
-    })
+            context["profiles"] = profiles
+            context["profile"] = profile
+            context["user_friend_requests"] = user_friend_requests
+            context["user_friend_requests_count"] = user_friend_requests.count()
+            context["pending_friend_requests"] = pending_friend_requests
+            context["pending_friend_requests_count"] = pending_friend_requests.count()
 
-def games(request):
-    friends = None
-    games = None
-    profile = None
+        return self.render_to_response(context)
 
-    if request.user.is_authenticated:
-        profile = Profile.objects.get(user=request.user)
+class GamesListPage(ListView):
+    model = Game
+    template_name = 'games/list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["authenticated"] = self.request.user.is_authenticated
+        
+        profile = Profile.objects.get(user=self.request.user)
+        context["profile"] = profile
+        
         friends = Friends.objects.filter(profile=profile)
+        context["friends"] = friends
+        
         playerGames = PlayerGameLink.objects.filter(player=profile)
+        games = None
         for playerGame in playerGames:
             if (games == None):
                 games = Game.objects.filter(Q(white = playerGame) | Q(black = playerGame))
             games = games | Game.objects.filter(Q(white = playerGame) | Q(black = playerGame))
-    
-    gamesList = GamesListSerializer(games, many=True)
 
-    print(gamesList.data)
+        gamesList = GamesListSerializer(games, many=True)
+        context["games"] = gamesList.data
 
-    return render(request, 'games/list.html', {
-        "authenticated": request.user.is_authenticated,
-        "profile": profile,
-        "friends": friends,
-        "games": gamesList.data,
-    })
+        return context
 
-def play(request, game_id):
-    profile = Profile.objects.get(user=request.user)
-    game = None
+class GamePage(TemplateView):
+    template_name = 'games/play.html'
 
-
-    if request.user.is_authenticated:
-        try:
-            game = Game.objects.get(id=game_id)
-        except Game.DoesNotExist:
-            messages.error(request, "Game does not exist.")
-            return redirect('/games')
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         
-    return render(request, 'games/play.html', {
-        "authenticated": request.user.is_authenticated,
-        "profile": profile,
-        "game": game,
-    });
+        context["authenticated"] = self.request.user.is_authenticated
+        profile = Profile.objects.get(user=self.request.user)
+        context["profile"] = profile
 
-@require_http_methods(["GET"])
-def friends_list(request):
-    #If we are not authenticated, redirect. 
-    if not request.user.is_authenticated:
-        return redirect('/')
+        try:
+            game = Game.objects.get(id=self.kwargs['game_id'])
+            context["game"] = game
+        except Game.DoesNotExist:
+            messages.error(self.request, "Game does not exist.")
+            context["game"] = None
 
-    pending_friend_requests = None
-    pending_friend_requests_count = 0
-    user_friend_requests = None
-    user_friend_requests_count = 0
-    current_friends = None
-    current_friends_count = 0
+        return context
+    
+    def dispatch(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        if not context["game"]:
+            return redirect('/games')
 
-    if request.user.is_authenticated:
-        profile = Profile.objects.get(user=request.user)
-        pending_friend_requests = FriendRequests.objects.filter(to_user=profile)
-        pending_friend_requests_count = pending_friend_requests.count()
-        user_friend_requests = FriendRequests.objects.filter(from_user=profile)
-        user_friend_requests_count = user_friend_requests.count()
-        current_friends = Friends.objects.filter(profile=profile)
-        current_friends_count = current_friends.count()
-
-    return render(request, 'friends/friendsList.html', {
-        "pending_friend_requests_count": pending_friend_requests_count,
-        "pending_friend_requests": pending_friend_requests,
-        "user_friend_requests": user_friend_requests,
-        "user_friend_requests_count": user_friend_requests_count,
-        "authenticated": request.user.is_authenticated,
-        "current_friends": current_friends,
-        "current_friends_count": current_friends_count
-    })
-
-@require_http_methods(["GET", "POST"])
-def profile_request(request):
-    if not request.user.is_authenticated:
-        return redirect('/')
-
-    profile_form = None
-
-    if request.user.is_authenticated:
-        profile = Profile.objects.get(user=request.user)
-
-    if request.method == "POST":   
-        profile_form = UserProfile(request.POST, request.FILES) 
-        if profile_form.is_valid():
-            print(profile_form.cleaned_data)
-            if profile_form.cleaned_data.get('first_name'):
-                profile.user.first_name = profile_form.cleaned_data.get('first_name')
-            if profile_form.cleaned_data.get('last_name'):
-                profile.user.last_name = profile_form.cleaned_data.get('last_name')
-            if profile_form.cleaned_data.get('email'):
-                profile.user.email = profile_form.cleaned_data.get('email')
-            if profile_form.cleaned_data.get('phone'):
-                profile.phone = profile_form.cleaned_data.get('phone')
-            if profile_form.cleaned_data.get('bio'):
-                profile.bio = profile_form.cleaned_data.get('bio')
-            if profile_form.cleaned_data.get('profile_pic'):
-                profile.profile_pic = profile_form.cleaned_data.get('profile_pic')
-            profile.user.save()
-            profile.save()
-
-
-    return render(request, 'user/profile.html', {
-        "authenticated": request.user.is_authenticated,
-        "profile": profile
-    })
-
-
-
+        return super().dispatch(request, *args, **kwargs)
