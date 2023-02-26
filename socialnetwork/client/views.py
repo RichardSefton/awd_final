@@ -1,45 +1,34 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from .forms import NewUserForm, LoginForm, NewStatusPostForm, UserProfile
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.views.decorators.http import require_http_methods
-from .models import User, Status, Profile, FriendRequests, Friends, Game, PlayerGameLink
-from .serializers import GamesListSerializer
-from django.db.models import Q
-from django.views.generic import View, TemplateView, ListView, DetailView, CreateView, FormView
+from .models import User, Status, Profile, FriendRequests, Friends, Game
+from django.views.generic import View, TemplateView, ListView, CreateView, FormView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
-class HomePage(ListView):
+#Mixins to load data into the context
+from .mixins import LoadAuthenticatedMixin, \
+    LoadUserProfileMixin, LoadPendingFriendRequestsMixin, \
+        LoadStatusesMixin, LoadUserFriendRequestsMixin, \
+            LoadCurrentFriendsMixin, LoadGamesMixin, LoadGameMixin
+
+class HomePage(
+    LoadAuthenticatedMixin, 
+    LoadUserProfileMixin,
+    LoadPendingFriendRequestsMixin,
+    LoadStatusesMixin, 
+    ListView
+):
     model = Status
     context_object_name = 'statuses'
     template_name = 'home.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
-        # This page handles both authenticated and unauthenticated users
-        # As such, if the user is not authenticated this method will result in
-        # errors. So we need to return early if the user is not authenticated.
-        if not self.request.user.is_authenticated:
-            return context
-
-        profile = Profile.objects.get(user=self.request.user)
-        context["profile"] = profile
-        context["authenticated"] = self.request.user.is_authenticated
         context["status_form"] = NewStatusPostForm(self.request.POST)
-        
-        statuses = Status.objects.filter(profile=profile)
-        friends = Friends.objects.filter(profile=profile)
-        for friend in friends:
-            statuses = statuses | Status.objects.filter(profile=friend.friend)
-        statuses = statuses.order_by('-date') 
-        context["statuses"] = statuses
-
-        pending_friend_requests = FriendRequests.objects.filter(to_user=profile)
-        context["pending_friend_requests_count"] = pending_friend_requests.count()
-
         return context
 
-class RegisterPage(CreateView):
+class RegisterPage(LoadAuthenticatedMixin, CreateView):
     model = User
     template_name = 'auth/register.html'
     form_class = NewUserForm
@@ -47,7 +36,6 @@ class RegisterPage(CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["authenticated"] = self.request.user.is_authenticated
         context["title"] = "Register"
         return context
 
@@ -62,7 +50,7 @@ class RegisterPage(CreateView):
         messages.success(self.request, "Registration successful.")
         return valid
 
-class LoginPage(FormView):
+class LoginPage(LoadAuthenticatedMixin, FormView):
     model = User
     template_name = 'auth/login.html'
     form_class = LoginForm
@@ -70,7 +58,6 @@ class LoginPage(FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["authenticated"] = self.request.user.is_authenticated
         context["title"] = "Login"
         return context
     
@@ -89,7 +76,7 @@ class Logout(View):
         messages.info(request, "Logged out successfully!")
         return redirect("/")
     
-class NewStatusPage(View):
+class NewStatusPage(LoginRequiredMixin, View):
     model = Status
     
     def post(self, request):
@@ -104,20 +91,17 @@ class NewStatusPage(View):
         messages.info(request, "Unable to post your status")
         return redirect('/')
     
-class ProfilePage(FormView):
+class ProfilePage(
+    LoginRequiredMixin, 
+    LoadAuthenticatedMixin, 
+    LoadUserProfileMixin, 
+    LoadPendingFriendRequestsMixin,
+    FormView
+):
     model = Profile
     template_name = 'user/profile.html'
     form_class = UserProfile
     success_url = '/profile'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["authenticated"] = self.request.user.is_authenticated
-        
-        profile = Profile.objects.get(user=self.request.user)
-        context["profile"] = profile
-        
-        return context
     
     def form_valid(self, form):
         valid = super(ProfilePage, self).form_valid(form)
@@ -139,36 +123,25 @@ class ProfilePage(FormView):
         messages.success(self.request, "Profile updated successfully.")
         return valid
     
-class FriendListPage(ListView):
+class FriendListPage(
+    LoginRequiredMixin, 
+    LoadAuthenticatedMixin, 
+    LoadPendingFriendRequestsMixin,
+    LoadUserFriendRequestsMixin,
+    LoadCurrentFriendsMixin,
+    ListView
+):
     model = Friends
     template_name = 'friends/friendsList.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        
-        context["authenticated"] = self.request.user.is_authenticated
-
-        profile = Profile.objects.get(user=self.request.user)
-        pending_friend_requests = FriendRequests.objects.filter(to_user=profile)
-        user_friend_requests = FriendRequests.objects.filter(from_user=profile)
-        current_friends = Friends.objects.filter(profile=profile)
-        
-        context["pending_friend_requests"] = pending_friend_requests
-        context["pending_friend_requests_count"] = pending_friend_requests.count()
-        context["user_friend_requests"] = user_friend_requests
-        context["user_friend_requests_count"] = user_friend_requests.count()
-        context["current_friends"] = current_friends
-        context["current_friends_count"] = current_friends.count()
-
-        return context
-
-class SearchPage(TemplateView):
+class SearchPage(
+    LoginRequiredMixin,
+    LoadAuthenticatedMixin, 
+    LoadPendingFriendRequestsMixin,
+    LoadUserFriendRequestsMixin,
+    TemplateView
+):
     template_name = 'friends/search.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["authenticated"] = self.request.user.is_authenticated
-        return context
     
     def post(self, request, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -191,58 +164,30 @@ class SearchPage(TemplateView):
                 profiles = profiles.exclude(user=friend.friend.user)
 
             context["profiles"] = profiles
-            context["profile"] = profile
-            context["user_friend_requests"] = user_friend_requests
-            context["user_friend_requests_count"] = user_friend_requests.count()
-            context["pending_friend_requests"] = pending_friend_requests
-            context["pending_friend_requests_count"] = pending_friend_requests.count()
 
         return self.render_to_response(context)
 
-class GamesListPage(ListView):
+class GamesListPage(
+    LoginRequiredMixin, 
+    LoadAuthenticatedMixin, 
+    LoadUserProfileMixin, 
+    LoadPendingFriendRequestsMixin,
+    LoadCurrentFriendsMixin,
+    LoadGamesMixin,
+    ListView    
+):
     model = Game
     template_name = 'games/list.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["authenticated"] = self.request.user.is_authenticated
-        
-        profile = Profile.objects.get(user=self.request.user)
-        context["profile"] = profile
-        
-        friends = Friends.objects.filter(profile=profile)
-        context["friends"] = friends
-        
-        playerGames = PlayerGameLink.objects.filter(player=profile)
-        games = None
-        for playerGame in playerGames:
-            if (games == None):
-                games = Game.objects.filter(Q(white = playerGame) | Q(black = playerGame))
-            games = games | Game.objects.filter(Q(white = playerGame) | Q(black = playerGame))
-
-        gamesList = GamesListSerializer(games, many=True)
-        context["games"] = gamesList.data
-
-        return context
-
-class GamePage(TemplateView):
+class GamePage(
+    LoginRequiredMixin, 
+    LoadAuthenticatedMixin, 
+    LoadUserProfileMixin, 
+    LoadPendingFriendRequestsMixin,
+    LoadGameMixin,
+    TemplateView
+):
     template_name = 'games/play.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        
-        context["authenticated"] = self.request.user.is_authenticated
-        profile = Profile.objects.get(user=self.request.user)
-        context["profile"] = profile
-
-        try:
-            game = Game.objects.get(id=self.kwargs['game_id'])
-            context["game"] = game
-        except Game.DoesNotExist:
-            messages.error(self.request, "Game does not exist.")
-            context["game"] = None
-
-        return context
     
     def dispatch(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
