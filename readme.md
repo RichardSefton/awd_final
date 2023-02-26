@@ -29,3 +29,6 @@ https://stackoverflow.com/questions/26510242/django-how-to-login-user-directly-a
 
 Getting context in post function
 https://stackoverflow.com/questions/71614911/django-access-context-data-in-post-and-get
+
+Redirecting from class based views
+https://stackoverflow.com/questions/7884766/can-i-redirect-to-another-url-in-a-django-templateview
