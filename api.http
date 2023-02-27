@@ -1,2 +1,29 @@
-GET http://localhost:8080/pending-friend-requests
+@cookie = csrftoken=aMbiS2R1eXAJYRPfO2YFaBz36ZSbEwfJ; sessionid=8sv9tudp3l9436lvljxjppx9lpij0bxk
+@csrftoken = aMbiS2R1eXAJYRPfO2YFaBz36ZSbEwfJ
+@session = 8sv9tudp3l9436lvljxjppx9lpij0bxk
+
+GET http://localhost:8080/api/pending-friend-requests
 Cookie: csrftoken=cnpl4DM0gV9zT7xetQICtLluWpdqnaZ9; sessionid=0adtea6a3vkx2z20fir6cqtpk2zcwvnt
+
+
+### Friend Request
+POST http://localhost:8080/api/friend-request
+Cookie: {{cookie}}
+X-CSRFToken: {{csrftoken}}
+Content-Type: application/json
+
+{
+    "profileId": 53
+}
+
+
+### Pending Friend Requests
+GET http://localhost:8080/api/pending-friend-requests
+Cookie: {{cookie}}
+X-CSRFToken: {{csrftoken}}
+
+
+### Confirm Friend Request
+POST http://localhost:8080/api/friends/53/confirm
+Cookie: {{cookie}}
+X-CSRFToken: {{csrftoken}}

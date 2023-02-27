@@ -4,11 +4,11 @@ from . import api
 app_name = 'api'
 
 urlpatterns = [
-    path('friends/<int:profile_id>/confirm', api.confirm_friend_request, name='confirm-friend-request'),
-    path('friends/<int:profile_id>/cancel', api.cancel_friend_request, name='cancel-friend-request'),
-    path('friends/<int:profile_id>/decline', api.decline_friend_request, name='decline-friend-request'),
-    path('friends/<int:profile_id>/unfriend', api.unfriend_request, name='unfriend_request'),
-    path('friend-request', api.friend_request, name='friend-request'),
-    path('pending-friend-requests', api.pending_friend_requests, name='pending-friend-requests'),
-    path('game/invite/<int:profile_id>', api.game_invite_request, name='game_invite'),
+    path('friends/<int:profile_id>/confirm', api.ConfirmFriendRequestView.as_view(), name='confirm-friend-request'),
+    path('friends/<int:profile_id>/cancel', api.CancelFriendRequestView.as_view(), name='cancel-friend-request'),
+    path('friends/<int:profile_id>/decline', api.DeclineFriendRequestView.as_view(), name='decline-friend-request'),
+    path('friends/<int:profile_id>/unfriend', api.UnfriendRequestView.as_view(), name='unfriend_request'),
+    path('friend-request', api.FriendRequestView.as_view(), name='friend-request'),
+    path('pending-friend-requests', api.PendingFriendRequestsView.as_view(), name='pending-friend-requests'),
+    path('game/invite/<int:profile_id>', api.GameInviteRequestView.as_view(), name='game_invite'),
 ]
