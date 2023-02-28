@@ -142,6 +142,10 @@ STATICFILES_DIRS = [
 
 PROFILE_PICS = '/profile_pics/'
 PROFILE_PICS_ROOT = os.path.join(BASE_DIR, 'profile_pics')
+
+THUMBNAIL_PICS = '/profile_thumbnail/'
+THUMBNAIL_PICS_ROOT = os.path.join(BASE_DIR, 'profile_thumbnail')
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 

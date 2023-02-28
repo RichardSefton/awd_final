@@ -32,3 +32,7 @@ https://stackoverflow.com/questions/71614911/django-access-context-data-in-post-
 
 Redirecting from class based views
 https://stackoverflow.com/questions/7884766/can-i-redirect-to-another-url-in-a-django-templateview
+
+
+default profile pic
+https://i.pinimg.com/474x/18/b9/ff/18b9ffb2a8a791d50213a9d595c4dd52.jpg

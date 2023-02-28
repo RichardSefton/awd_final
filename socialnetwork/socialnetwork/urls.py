@@ -22,4 +22,5 @@ urlpatterns = [
     path('', include('client.urls')),
     path('api/', include('api.urls')),
     path('admin/', admin.site.urls),
-] + static(settings.PROFILE_PICS, document_root=settings.PROFILE_PICS_ROOT)
+] + static(settings.PROFILE_PICS, document_root=settings.PROFILE_PICS_ROOT) + \
+static(settings.THUMBNAIL_PICS, document_root=settings.THUMBNAIL_PICS_ROOT)

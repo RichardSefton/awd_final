@@ -5,7 +5,7 @@ from django.contrib import messages
 from .models import User, Status, Profile, FriendRequests, Friends, Game
 from django.views.generic import View, TemplateView, ListView, CreateView, FormView
 from django.contrib.auth.mixins import LoginRequiredMixin
-
+from .tasks import make_thumbnail
 #Mixins to load data into the context
 from .mixins import LoadAuthenticatedMixin, \
     LoadUserProfileMixin, LoadPendingFriendRequestsMixin, \
@@ -120,6 +120,7 @@ class ProfilePage(
             profile.profile_pic = form.cleaned_data.get('profile_pic')
         profile.user.save()
         profile.save()
+        make_thumbnail.delay(profile.id)
         messages.success(self.request, "Profile updated successfully.")
         return valid
     
