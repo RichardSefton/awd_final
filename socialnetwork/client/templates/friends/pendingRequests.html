@@ -1,3 +1,4 @@
+{% load static %}
 {% if pending_friend_requests_count > 0 or user_friend_requests_count > 0 %}
     <div class="container">
         <h3>Friend Requests</h3>
@@ -5,7 +6,11 @@
             <tbody>
                 {% for friend_request in pending_friend_requests %}
                     <tr>
-                        <td width="80%">{{friend_request.from_user.user}}</td>
+                        <td width="10%">
+                            <img profileThumbnail id="thumbnail_{{friend_request.from_user.id}}" status="{{friend_request.from_user.id}}" src="{{friend_request.from_user.thumbnail}}" height="50" width="50" alt="profile picture" />
+                            <img profileThumbnailFallback id="fallback_{{friend_request.from_user.id}}" status="{{friend_request.from_user.id}}" src="{% static 'images/defaultProfile.jpg' %}" height="50" width="50" alt="profile picture" hidden />
+                        </td>
+                        <td width="70%">{{friend_request.from_user.user}}</td>
                         <td>
                             <button profile="{{friend_request.from_user.id}}" class="btn btn-success">Accept</button>
                         </td>
@@ -17,7 +22,11 @@
                 {% if user_friend_requests_count > 0 %}
                     {% for request in user_friend_requests %}
                         <tr>
-                            <td width="80%">{{request.to_user.user}}</td>
+                            <td width="10%">
+                                <img profileThumbnail id="thumbnail_{{request.to_user.id}}" status="{{request.to_user.id}}" src="{{request.to_user.thumbnail}}" height="50" width="50" alt="profile picture" />
+                                <img profileThumbnailFallback id="fallback_{{request.to_user.id}}" status="{{request.to_user.id}}" src="{% static 'images/defaultProfile.jpg' %}" height="50" width="50" alt="profile picture" hidden />
+                            </td>
+                            <td width="70%">{{request.to_user.user}}</td>
                             <td width="10%">
                                 <button class="btn btn-primary" disabled="true">Pending</button>
                             </td>

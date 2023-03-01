@@ -5,7 +5,12 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-8">
+                        <div class="col-2">
+                            <img profileThumbnail id="thumbnail_{{profile.id}}" status="{{profile.id}}" src="{{profile.thumbnail}}" height="50" width="50" alt="profile picture" />
+                            <img profileThumbnailFallback id="fallback_{{profile.id}}" status="{{profile.id}}" src="{% static 'images/defaultProfile.jpg' %}" height="50" width="50" alt="profile picture" hidden />
+                        </td>
+                        </div>
+                        <div class="col-6">
                             {{profile.user}}
                         </div>
                         <div class="col-4">
@@ -21,13 +26,18 @@
             <div class="card">
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-4">
+                        <div class="col-2">
+                            <img profileThumbnail id="thumbnail_{{user_request.to_user.id}}" status="{{user_request.to_user.id}}" src="{{user_request.to_user.thumbnail}}" height="50" width="50" alt="profile picture" />
+                            <img profileThumbnailFallback id="fallback_{{user_request.to_user.id}}" status="{{user_request.to_user.id}}" src="{% static 'images/defaultProfile.jpg' %}" height="50" width="50" alt="profile picture" hidden />
+                        </td>
+                        </div>
+                        <div class="col-6">
                             <a>{{user_request.to_user.user}}</a>
                         </div>
-                        <div class="col-4">
+                        <div class="col-2">
                             <a href="{% url 'client:friends-list' %}">Manage</a>
                         </div>
-                        <div class="col-4">
+                        <div class="col-2">
                             <button class="btn btn-primary" disabled>Pending</button>
                         </div>
                     </div>
@@ -40,13 +50,17 @@
         <div class="card">
             <div class="card-body">
                 <div class="row">
-                    <div class="col-4">
+                    <div class="col-2">
+                        <img profileThumbnail id="thumbnail_{{pending_request.from_user.id}}" status="{{pending_request.from_user.id}}" src="{{pending_request.from_user.thumbnail}}" height="50" width="50" alt="profile picture" />
+                        <img profileThumbnailFallback id="fallback_{{pending_request.from_user.id}}" status="{{pending_request.from_user.id}}" src="{% static 'images/defaultProfile.jpg' %}" height="50" width="50" alt="profile picture" hidden />
+                    </div>
+                    <div class="col-6">
                         <a>{{pending_request.from_user.user}}</a>
                     </div>
-                    <div class="col-4">
+                    <div class="col-2">
                         <a href="{% url 'client:friends-list' %}">Manage</a>
                     </div>
-                    <div class="col-4">
+                    <div class="col-2">
                         <button class="btn btn-primary" disabled>Pending</button>
                     </div>
                 </div>
@@ -55,4 +69,5 @@
     {% endfor %}
 {% endif %}
     <script src="{% static 'scripts/searchResults.js' %}" type="module"></script>
+    <script src="{% static 'scripts/profilePicture.js' %}" type="module"></script>
 </div>

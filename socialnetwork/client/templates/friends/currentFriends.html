@@ -1,3 +1,4 @@
+{% load static %}
 {% if current_friends_count > 0 %}
     <div class="container">
         <h3>Friends List</h3>
@@ -5,7 +6,11 @@
             <tbody>
                 {% for current_friend in current_friends %}
                     <tr>
-                        <td width="90%">{{current_friend.friend.user}}</td>
+                        <td width="10%">
+                            <img profileThumbnail id="thumbnail_{{current_friend.profile.id}}" status="{{current_friend.profile.id}}" src="{{current_friend.profile.thumbnail}}" height="50" width="50" alt="profile picture" />
+                            <img profileThumbnailFallback id="fallback_{{current_friend.profile.id}}" status="{{current_friend.profile.id}}" src="{% static 'images/defaultProfile.jpg' %}" height="50" width="50" alt="profile picture" hidden />
+                        </td>
+                        <td width="80%">{{current_friend.friend.user}}</td>
                         <td>
                             <button friend="{{current_friend.friend.id}}" class="btn btn-danger">Remove</button>
                         </td>

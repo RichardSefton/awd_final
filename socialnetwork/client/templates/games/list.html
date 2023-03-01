@@ -20,9 +20,17 @@
                     {% for game in games %}
                         <tr>
                             {% if game.white.player.id == profile.id %}
-                                <td width="90%">{{game.black.player.user.username}}</td>
+                                <td width="10%">
+                                    <img profileThumbnail id="thumbnail_{{game.black.player.id}}" status="{{game.black.player.id}}" src="{{game.black.player.thumbnail}}" height="50" width="50" alt="profile picture" />
+                                    <img profileThumbnailFallback id="fallback_{{game.black.player.id}}" status="{{game.black.player.id}}" src="{% static 'images/defaultProfile.jpg' %}" height="50" width="50" alt="profile picture" hidden />    
+                                </td>
+                                <td width="80%">{{game.black.player.user.username}}</td>
                             {% else %}
-                                <td width="90%">{{game.white.player.user.username}}</td>
+                                <td width="10%">
+                                    <img profileThumbnail id="thumbnail_{{game.white.player.id}}" status="{{game.white.player.id}}" src="{{game.white.player.thumbnail}}" height="50" width="50" alt="profile picture" />
+                                    <img profileThumbnailFallback id="fallback_{{game.white.player.id}}" status="{{game.white.player.id}}" src="{% static 'images/defaultProfile.jpg' %}" height="50" width="50" alt="profile picture" hidden />    
+                                </td>
+                                <td width="80%">{{game.white.player.user.username}}</td>
                             {% endif %}
                             <td>
                                 <button play="{{game.id}}" class="btn btn-outline-success">
@@ -42,7 +50,11 @@
                 <table class="table">
                     {% for friend in current_friends %}
                         <tr>
-                            <td width="70%">{{friend.friend.user}}</td>
+                            <td width="10%">
+                                <img profileThumbnail id="thumbnail_{{friend.friend.id}}" status="{{friend.friend.id}}" src="{{friend.friend.thumbnail}}" height="50" width="50" alt="profile picture" />
+                                <img profileThumbnailFallback id="fallback_{{friend.friend.id}}" status="{{friend.friend.id}}" src="{% static 'images/defaultProfile.jpg' %}" height="50" width="50" alt="profile picture" hidden />    
+                            </td>
+                            <td width="60%">{{friend.friend.user}}</td>
                             <td>
                                 <button invite="{{friend.friend.id}}" class="btn btn-outline-success">
                                     Invite to Play
@@ -54,4 +66,5 @@
             </div>
         </div>
     </div>
+    <script src="{% static 'scripts/profilePicture.js' %}" type="module"></script>
 {% endblock %}
