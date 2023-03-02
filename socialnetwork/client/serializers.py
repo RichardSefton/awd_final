@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Profile, FriendRequests, Game, PlayerGameLink
+from .models import Profile, FriendRequests, Game, PlayerGameLink, Status, StatusComment, StatusCommentLink
 from django.contrib.auth.models import User
 
 class FriendRequestSerializer(serializers.ModelSerializer):
@@ -26,7 +26,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ['id', 'user']
+        fields = ['id', 'user', 'thumbnail']
 
 class PendingFriendRequests(serializers.ModelSerializer):
     
@@ -53,3 +53,22 @@ class GamesListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Game
         fields = ['id', 'pgn', 'white', 'black']
+
+class StatusCommentSerializer(serializers.Serializer):
+    comment = serializers.CharField()
+    profile = serializers.SerializerMethodField()
+
+    def get_profile(self, obj):
+        print(obj)
+        link = StatusCommentLink.objects.get(comment=obj)
+        return ProfileSerializer(link.profile).data
+
+
+class StatusSerializer(serializers.ModelSerializer):
+    profile = ProfileSerializer(many=False)
+    comments = StatusCommentSerializer(many=True)
+    date = serializers.DateTimeField(format="%d-%m-%Y %H:%M:%S")
+
+    class Meta:
+        model = Status
+        fields = ['id', 'status', 'profile', 'date', 'comments']

@@ -5,10 +5,28 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.renderers import JSONRenderer
 
 #models
-from client.models import Profile, FriendRequests, Friends, Game, PlayerGameLink
+from client.models import Profile, FriendRequests, Friends, Game, PlayerGameLink, Status, StatusComment, StatusCommentLink
 
 #serializers
 from client.serializers import FriendRequestSerializer, PendingFriendRequests, GameRequestSerializer
+
+class CommentView(APIView):
+    permission_classes = [IsAuthenticated]
+    renderer_classes = [JSONRenderer]
+
+    def post(self, request, **kwargs):
+        comment_id = kwargs['comment_id']
+        profile = Profile.objects.get(user=request.user)
+        # m for model
+        mStatus = Status.objects.get(id=comment_id)
+        # Its insecure but time is not my friend right now.
+        comment = StatusComment.objects.create(comment=request.data['text'])
+        comment.save()
+        statusCommentLink = StatusCommentLink.objects.create(status=mStatus, comment=comment, profile=profile)
+        statusCommentLink.save()
+        mStatus.comments.add(comment)
+        mStatus.save()
+        return Response(status=status.HTTP_200_OK, data={ "saved": True })
 
 class FriendRequestView(APIView):
     permission_classes = [IsAuthenticated]

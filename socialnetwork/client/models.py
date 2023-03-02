@@ -25,14 +25,23 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
 
+class StatusComment(models.Model):
+    comment = models.CharField(max_length=4000, null=False, blank=False)
+
 # Create your models here.
 class Status(models.Model):
     status = models.CharField(max_length=200)
     profile = models.ForeignKey(Profile, on_delete=models.DO_NOTHING)
     date = models.DateTimeField(auto_now_add=True)
+    comments = models.ManyToManyField(StatusComment, through='StatusCommentLink')
 
     def __str__(self):
         return self.status
+    
+class StatusCommentLink(models.Model):
+    status = models.ForeignKey(Status, on_delete=models.DO_NOTHING)
+    comment = models.ForeignKey(StatusComment, on_delete=models.DO_NOTHING)
+    profile = models.ForeignKey(Profile, on_delete=models.DO_NOTHING)
 
 class FriendRequests(models.Model):
     from_user = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name='from_user')

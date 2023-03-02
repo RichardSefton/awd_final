@@ -2,6 +2,8 @@
 @csrftoken = aMbiS2R1eXAJYRPfO2YFaBz36ZSbEwfJ
 @session = 8sv9tudp3l9436lvljxjppx9lpij0bxk
 
+
+### Pending requests
 GET http://localhost:8080/api/pending-friend-requests
 Cookie: csrftoken=cnpl4DM0gV9zT7xetQICtLluWpdqnaZ9; sessionid=0adtea6a3vkx2z20fir6cqtpk2zcwvnt
 

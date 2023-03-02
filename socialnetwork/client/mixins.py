@@ -1,6 +1,6 @@
 from django.views.generic.base import ContextMixin
 from .models import Profile, FriendRequests, Status, Friends, PlayerGameLink, Game
-from .serializers import GamesListSerializer
+from .serializers import GamesListSerializer, StatusSerializer
 from django.db.models import Q
 from django.contrib import messages
 
@@ -67,7 +67,8 @@ class LoadStatusesMixin(ContextMixin):
             for friend in friends:
                 statuses = statuses | Status.objects.filter(profile=friend.friend)
             statuses = statuses.order_by('-date') 
-            context["statuses"] = statuses
+            statuses = StatusSerializer(statuses, many=True)
+            context["statuses"] = statuses.data
 
         return context
     

@@ -10,7 +10,7 @@
                     </div>
                     <div class="col-10">
                         <div class="text-start">
-                            <h4>{{status.profile.user}}</h4>
+                            <h4>{{status.profile.user.username}}</h4>
                         </div>
                     </div>
                 </div>
@@ -21,7 +21,43 @@
             <div class="card-body">
                 <div class="container">
                     <!-- renders newlines as linebreaks -->
-                    {{status|striptags|linebreaksbr}}
+                    {{status.status|striptags|linebreaksbr}}
+                </div>
+            </div>
+            <div class="container">
+                {% for comment in status.comments %}
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-2">
+                                    <img commentThumbnail id="thumbnail_comment_{{comment.id}}" comment="{{comment.id}}" src="{{comment.profile.thumbnail}}" height="50" width="50" alt="profile picture" />
+                                    <img commentThumbnailFallback id="fallback_comment_{{comment.id}}" comment="{{comment.id}}" src="{% static 'images/defaultProfile.jpg' %}" height="50" width="50" alt="profile picture" hidden />
+                                </div>
+                                <div class="col-10">
+                                    <div class="text-start">
+                                        <h4>{{comment.profile.user.username}}</h4>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                {{comment.comment|striptags|linebreaksbr}}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row">
+                            <button class="btn btn-primary btn-lg btn-block" commentStart comment="{{status.id}}">Comment</button>
+                        </div>
+                        <div id="comment_{{status.id}}" hidden>
+                            <textarea comment id="comment_text_{{status.id}}" class="form-control" rows="3" comment="{{status.id}}"></textarea>
+                            <br />
+                            <div class="text-end">
+                                <button class="btn btn-primary" id="comment_button_{{status.id}}" comment="{{status.id}}">Comment</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -29,3 +65,4 @@
     {% endfor %}
 </div>
 <script src="{% static 'scripts/profilePicture.js' %}"></script>
+<script src="{% static 'scripts/commentHandler.js' %}" type="module"></script>

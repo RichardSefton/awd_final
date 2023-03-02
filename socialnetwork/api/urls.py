@@ -11,4 +11,5 @@ urlpatterns = [
     path('friend-request', api.FriendRequestView.as_view(), name='friend-request'),
     path('pending-friend-requests', api.PendingFriendRequestsView.as_view(), name='pending-friend-requests'),
     path('game/invite/<int:profile_id>', api.GameInviteRequestView.as_view(), name='game_invite'),
+    path('<int:comment_id>/comment', api.CommentView.as_view(), name='comment'),
 ]
