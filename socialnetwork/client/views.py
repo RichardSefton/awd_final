@@ -12,6 +12,13 @@ from .mixins import LoadAuthenticatedMixin, \
         LoadStatusesMixin, LoadUserFriendRequestsMixin, \
             LoadCurrentFriendsMixin, LoadGamesMixin, LoadGameMixin
 
+'''
+Home page. 
+
+Requires authenticated user boolean, user profile, pending friend requests, statuses, and status form.
+Most loaded from mixins. 
+
+'''
 class HomePage(
     LoadAuthenticatedMixin, 
     LoadUserProfileMixin,
@@ -28,6 +35,12 @@ class HomePage(
         context["status_form"] = NewStatusPostForm(self.request.POST)
         return context
 
+'''
+Register page. 
+
+requires authenticated boolean as we want to display something different if the user is logged in.
+
+'''
 class RegisterPage(LoadAuthenticatedMixin, CreateView):
     model = User
     template_name = 'auth/register.html'
@@ -50,6 +63,11 @@ class RegisterPage(LoadAuthenticatedMixin, CreateView):
         messages.success(self.request, "Registration successful.")
         return valid
 
+'''
+Login page.
+
+requires authenticated boolean as we want to display something different if the user is logged in.
+'''
 class LoginPage(LoadAuthenticatedMixin, FormView):
     model = User
     template_name = 'auth/login.html'
@@ -70,12 +88,18 @@ class LoginPage(LoadAuthenticatedMixin, FormView):
         messages.success(self.request, "Login successful.")
         return valid
 
+# Logs the user out. 
 class Logout(View):
     def get(self, request):
         logout(request)
         messages.info(request, "Logged out successfully!")
         return redirect("/")
     
+'''
+New status view.
+
+Only for authenticated users.
+'''
 class NewStatusPage(LoginRequiredMixin, View):
     model = Status
     
@@ -90,7 +114,14 @@ class NewStatusPage(LoginRequiredMixin, View):
         
         messages.info(request, "Unable to post your status")
         return redirect('/')
-    
+
+'''
+Profile page.
+
+Only for authenticated users.
+
+Requires authenticated user boolean, user profile and pending friend requests
+'''  
 class ProfilePage(
     LoginRequiredMixin, 
     LoadAuthenticatedMixin, 
@@ -124,6 +155,13 @@ class ProfilePage(
         messages.success(self.request, "Profile updated successfully.")
         return valid
     
+'''
+Friends list page
+
+Only for authenticated users.
+
+Requires authenticated user boolean, pending friend requests, user friend requests, and current friends.
+'''
 class FriendListPage(
     LoginRequiredMixin, 
     LoadAuthenticatedMixin, 
@@ -135,6 +173,13 @@ class FriendListPage(
     model = Friends
     template_name = 'friends/friendsList.html'
 
+'''
+Search page
+
+Only for authenticated users.
+
+Requires authenticated user boolean, pending friend requests, and user friend requests.
+'''
 class SearchPage(
     LoginRequiredMixin,
     LoadAuthenticatedMixin, 
@@ -168,6 +213,13 @@ class SearchPage(
 
         return self.render_to_response(context)
 
+'''
+Games list page
+
+Only for authenticated users.
+
+Requires authenticated user boolean, user profile, pending friend requests, current friends, and games list.
+'''
 class GamesListPage(
     LoginRequiredMixin, 
     LoadAuthenticatedMixin, 
@@ -180,6 +232,13 @@ class GamesListPage(
     model = Game
     template_name = 'games/list.html'
 
+'''
+Game page
+
+Only for authenticated users.
+
+Requires authenticated user boolean, user profile, pending friend requests, and current game.
+'''
 class GamePage(
     LoginRequiredMixin, 
     LoadAuthenticatedMixin, 

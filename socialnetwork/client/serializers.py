@@ -2,6 +2,10 @@ from rest_framework import serializers
 from .models import Profile, FriendRequests, Game, PlayerGameLink, Status, StatusComment, StatusCommentLink
 from django.contrib.auth.models import User
 
+'''
+Serializers mostly to convert the data into JSON format.
+'''
+
 class FriendRequestSerializer(serializers.ModelSerializer):
     profileId = serializers.IntegerField(source='profile.id')
 

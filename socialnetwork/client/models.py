@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
+# Profile. Extends the default User model
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     websocket_user_channel = models.CharField(max_length=256, null=True, blank=True)
@@ -25,10 +26,11 @@ def create_user_profile(sender, instance, created, **kwargs):
 def save_user_profile(sender, instance, **kwargs):
     instance.profile.save()
 
+# Status comment model
 class StatusComment(models.Model):
     comment = models.CharField(max_length=4000, null=False, blank=False)
 
-# Create your models here.
+# Status model
 class Status(models.Model):
     status = models.CharField(max_length=200)
     profile = models.ForeignKey(Profile, on_delete=models.DO_NOTHING)
@@ -38,11 +40,13 @@ class Status(models.Model):
     def __str__(self):
         return self.status
     
+# Status comment link model. Links a users comment to a status
 class StatusCommentLink(models.Model):
     status = models.ForeignKey(Status, on_delete=models.DO_NOTHING)
     comment = models.ForeignKey(StatusComment, on_delete=models.DO_NOTHING)
     profile = models.ForeignKey(Profile, on_delete=models.DO_NOTHING)
 
+# Friend request model
 class FriendRequests(models.Model):
     from_user = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name='from_user')
     to_user = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name='to_user')
@@ -50,6 +54,7 @@ class FriendRequests(models.Model):
     class Meta:
         unique_together = ('from_user', 'to_user')
 
+# Friends model. Links two users as friends
 class Friends(models.Model):
     profile = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name='profile')
     friend = models.ForeignKey(Profile, on_delete=models.DO_NOTHING, related_name='friend')
@@ -58,11 +63,13 @@ class Friends(models.Model):
     class Meta:
         unique_together = ('profile', 'friend')
 
+# Links a player to a game
 class PlayerGameLink(models.Model):
     player = models.ForeignKey(Profile, on_delete=models.DO_NOTHING)
     accepted = models.BooleanField(default=False)
     websocket_game_channel = models.CharField(max_length=256, null=True, blank=True)
 
+# Game model
 class Game(models.Model):
     pgn_headers = models.CharField(max_length=4000, null=True, blank=True)
     pgn = models.CharField(max_length=4000, default='1.')

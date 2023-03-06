@@ -4,12 +4,20 @@ from .serializers import GamesListSerializer, StatusSerializer
 from django.db.models import Q
 from django.contrib import messages
 
+'''
+Mixins to load data into the response context.
+
+We are loaded the data in mixins to save the Views from becoming excessively bloated. 
+'''
+
+# Load the boolean to say if the user is authenticated or not
 class LoadAuthenticatedMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['authenticated'] = self.request.user.is_authenticated
         return context
 
+# Load the user's profile
 class LoadUserProfileMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -19,7 +27,8 @@ class LoadUserProfileMixin(ContextMixin):
             context['profile'] = profile 
 
         return context
-    
+
+# Load the user's pending friend requests
 class LoadPendingFriendRequestsMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -32,6 +41,7 @@ class LoadPendingFriendRequestsMixin(ContextMixin):
 
         return context
     
+# Load the users friend requests
 class LoadUserFriendRequestsMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -44,6 +54,7 @@ class LoadUserFriendRequestsMixin(ContextMixin):
 
         return context
     
+# Load the users current friends
 class LoadCurrentFriendsMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -56,6 +67,7 @@ class LoadCurrentFriendsMixin(ContextMixin):
 
         return context
     
+# Load the users statuses/friends statuses
 class LoadStatusesMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -72,6 +84,7 @@ class LoadStatusesMixin(ContextMixin):
 
         return context
     
+# Load the users games
 class LoadGamesMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -90,6 +103,7 @@ class LoadGamesMixin(ContextMixin):
 
         return context
 
+# Load the users current game
 class LoadGameMixin(ContextMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

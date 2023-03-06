@@ -4,6 +4,9 @@ from channels.db import database_sync_to_async
 from django.contrib.auth.models import User
 from .models import Profile, Game, PlayerGameLink
 
+'''
+Main profile websockets consumer
+'''
 class ProfileSockets(AsyncWebsocketConsumer):
     def save_channel(self):
         profile = Profile.objects.get(user=self.user)
@@ -55,8 +58,6 @@ class ProfileSockets(AsyncWebsocketConsumer):
         profile = await database_sync_to_async(self.get_user_profile)()
         profile_user = await database_sync_to_async(self.get_profile_user)(profile)
         
-        print(self.channel_layer)
-
         if (requestProfile.websocket_user_channel == None):
             requestProfile.websocket_user_channel = "blank"
 
@@ -71,12 +72,13 @@ class ProfileSockets(AsyncWebsocketConsumer):
         )
 
     async def friend_request(self, event):
-        print('friend_request', self.scope["user"], event)
-
         await self.send(text_data=json.dumps({
             'request_from': event['message']['request_from']
         }))
 
+'''
+Game websockets consumer
+'''
 class GameSockets(AsyncWebsocketConsumer):   
     def save_channel(self):
         profile = Profile.objects.get(user=self.user)
@@ -139,6 +141,9 @@ class GameSockets(AsyncWebsocketConsumer):
         else:
             return game.black.websocket_game_channel
 
+    '''
+    Make a player move and ping the move to the other player. 
+    '''
     async def make_move(self, json_data):
         pgn = json_data['pgn']
         pgn = pgn.replace('\n', '')

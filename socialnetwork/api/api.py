@@ -10,15 +10,24 @@ from client.models import Profile, FriendRequests, Friends, Game, PlayerGameLink
 #serializers
 from client.serializers import FriendRequestSerializer, PendingFriendRequests, GameRequestSerializer
 
+'''
+API View for users to post status comments to a status. 
+/api/<int:comment_id>/comment
+
+status_id is the id of the status that the comment is being posted to.
+'''
 class CommentView(APIView):
+    # Only authenticated users can post comments
     permission_classes = [IsAuthenticated]
     renderer_classes = [JSONRenderer]
 
     def post(self, request, **kwargs):
-        comment_id = kwargs['comment_id']
+        status_id = kwargs['status_id']
         profile = Profile.objects.get(user=request.user)
         # m for model
-        mStatus = Status.objects.get(id=comment_id)
+        mStatus = Status.objects.get(id=status_id)
+
+        # Inset the comment into the database
         # Its insecure but time is not my friend right now.
         comment = StatusComment.objects.create(comment=request.data['text'])
         comment.save()
@@ -28,20 +37,30 @@ class CommentView(APIView):
         mStatus.save()
         return Response(status=status.HTTP_200_OK, data={ "saved": True })
 
+'''
+API View for users to send a friend request to another user.
+
+/api/friend-request
+'''
 class FriendRequestView(APIView):
+    # Only authenticated users can send friend requests
     permission_classes = [IsAuthenticated]
     renderer_classes = [JSONRenderer]
 
     def post(self, request):
-        print(self)
-        print(request)
         friendRequestSerializer = FriendRequestSerializer(data=request.data)
         if (friendRequestSerializer.is_valid()):
             friendRequestSerializer.create(friendRequestSerializer.validated_data, request.user)
             return Response(status=status.HTTP_201_CREATED, data=friendRequestSerializer.data)
         return Response(status=status.HTTP_400_BAD_REQUEST, data=friendRequestSerializer.errors)
+    
+'''
+API View for getting users pending friend requests.
 
+/api/pending-friend-requests
+'''
 class PendingFriendRequestsView(APIView):
+    # Only authenticated users can get pending friend requests
     permission_classes = [IsAuthenticated]
     renderer_classes = [JSONRenderer]
 
@@ -51,7 +70,13 @@ class PendingFriendRequestsView(APIView):
         pendingFriendRequestsForm = PendingFriendRequests(friend_requests, many=True)
         return Response(status=status.HTTP_200_OK, data=pendingFriendRequestsForm.data)
 
+'''
+API View for users to confirm a friend request.
+
+/api/friends/<int:profile_id>/confirm
+'''
 class ConfirmFriendRequestView(APIView):
+    # Only authenticated users can confirm friend requests
     permission_classes = [IsAuthenticated]
     renderer_classes = [JSONRenderer]
 
@@ -78,7 +103,13 @@ class ConfirmFriendRequestView(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
+'''
+API View for users to cancel a friend request.
+
+/api/friends/<int:profile_id>/cancel
+'''
 class CancelFriendRequestView(APIView):
+    # Only authenticated users can cancel friend requests
     permission_classes = [IsAuthenticated]
     renderer_classes = [JSONRenderer]
 
@@ -102,7 +133,13 @@ class CancelFriendRequestView(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
+'''
+API View for users to decline a friend request.
+
+/api/friends/<int:profile_id>/decline
+'''
 class DeclineFriendRequestView(APIView):
+    # Only authenticated users can decline friend requests
     permission_classes = [IsAuthenticated]
     renderer_classes = [JSONRenderer]
 
@@ -126,7 +163,13 @@ class DeclineFriendRequestView(APIView):
 
         return Response(status=status.HTTP_200_OK)
 
+'''
+API View for users to unfriend a friend.
+
+/api/friends/<int:profile_id>/unfriend
+'''
 class UnfriendRequestView(APIView):
+    # Only authenticated users can unfriend friends
     permission_classes = [IsAuthenticated]
     renderer_classes = [JSONRenderer]
 
@@ -150,7 +193,13 @@ class UnfriendRequestView(APIView):
 
         return Response(status=status.HTTP_200_OK)
     
+'''
+API View for users to post game requests.
+
+/api/game/invite/<int:profile_id>
+'''
 class GameInviteRequestView(APIView):
+    # Only authenticated users can invite friends to games
     permission_classes = [IsAuthenticated]
     renderer_classes = [JSONRenderer]
 

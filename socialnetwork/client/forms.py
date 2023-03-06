@@ -7,6 +7,9 @@ from .models import User, Profile, StatusComment, Status
 
 # Create your forms here.
 
+'''
+User Login form
+'''
 class LoginForm(forms.Form):
 	username = forms.CharField(label='Username', required=True)
 	password = forms.CharField(label='Password', required=True, widget=forms.PasswordInput)
@@ -24,7 +27,9 @@ class LoginForm(forms.Form):
 			raise forms.ValidationError("This user is no longer active")
 		return super(LoginForm, self).clean(*args, **kwargs)
 
-
+'''
+User registration form
+'''
 class NewUserForm(UserCreationForm):
 	email = forms.EmailField(required=True)
 
@@ -39,9 +44,15 @@ class NewUserForm(UserCreationForm):
 			user.save()
 		return user
 
+'''
+New status form
+'''
 class NewStatusPostForm(forms.Form):
 	status = forms.CharField(label='', required=True, help_text='', widget=forms.Textarea(attrs={'cols': 80, 'rows': 5}))
 
+'''
+User profile form
+'''
 class UserProfile(forms.Form):
 	first_name = forms.CharField(label='First Name', required=False)
 	last_name = forms.CharField(label='Last Name', required=False)
