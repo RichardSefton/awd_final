@@ -1,7 +1,11 @@
 import { loadUserSocket } from '/static/scripts/sockets.js';
 
-const pageLoad = () => {
+/**
+ * @description: This function is called when the page is loaded
+ */
+const onLoad = () => {
+    //load the user socket
     loadUserSocket();
 };
 
-window.addEventListener('load', pageLoad);
+window.addEventListener('load', onLoad);

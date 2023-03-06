@@ -1,8 +1,7 @@
 import { friendRequestNotification } from '/static/scripts/domHelper.js';
 
 /**
- * Function sets up the general active user socket and returns it.
- * 
+ * @description:Function sets up the general active user socket and returns it.
  * This socket is used for general user events (friend request notifications etc)
  * 
  */
@@ -20,6 +19,7 @@ export const loadUserSocket = () => {
     if (!window.websockets)
         window.websockets = {};
 
+    //add the socket to the window object to make it globally accessible
     window.websockets = {
         ...window.websockets,
         userSocket: socket
@@ -27,10 +27,8 @@ export const loadUserSocket = () => {
 };
 
 /**
- * Function sets up the game socket and returns it.
- * 
+ * @description: Function sets up the game socket and returns it.
  * This socket is used for game events (Move making, game ending etc)
- * 
  */
 export const loadGameSocket = () => {
     const gameId = parseInt(window.location.pathname.split(['/'])[2]);
@@ -53,6 +51,7 @@ export const loadGameSocket = () => {
     if (!window.websockets)
         window.websockets = {};
 
+    //add the socket to the window object to make it globally accessible
     window.websockets = {
         ...window.websockets,
         gameSocket: socket

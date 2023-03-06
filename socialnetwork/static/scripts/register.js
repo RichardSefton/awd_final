@@ -1,11 +1,16 @@
 import { validateUsername, validatePassword, validateEmail } from "/static/scripts/validation.js";
 
+/**
+ * @description: This function is called when the user changes the username, email, or password fields
+ */
 const validate = () => {
+    //get the input values from the form
     const username = document.getElementById('id_username').value;
     const email = document.getElementById('id_email').value;
     const password1 = document.getElementById('id_password1').value;
     const password2 = document.getElementById('id_password2').value;
 
+    //disabled the submit button if the username or password is invalid
     let setDisabled = true;
     if (validateUsername(username) && 
         validateEmail(email) &&
@@ -14,31 +19,22 @@ const validate = () => {
         setDisabled = false
 
     if (password1 !== password2) setDisabled = true;
-
-    console.log({
-        username,
-        usernameValid: validateUsername(username),
-        email,
-        emailValid: validateUsername(email),
-        password1,
-        password1Valid: validatePassword(password1),
-        password2,
-        password2Valid: validatePassword(password1),
-        match: password1 === password2,
-        disabled: setDisabled
-    })
     
     document.getElementById('register_submit').disabled = setDisabled;
 
 };
 
-export const registerLoaded = () => {
+/**
+ * @description: This function is called when the page is loaded
+ */
+export const onLoad = () => {
+    //validate the form in its current state
     validate();
-
+    //attach event listeners to the username and password fields to listen for changes
     document.getElementById('id_username').addEventListener('change', () => validate());
     document.getElementById('id_email').addEventListener('change', () => validate());
     document.getElementById('id_password1').addEventListener('change', () => validate());
     document.getElementById('id_password2').addEventListener('change', () => validate());
 };
 
-window.addEventListener('load', registerLoaded);
+window.addEventListener('load', onLoad);

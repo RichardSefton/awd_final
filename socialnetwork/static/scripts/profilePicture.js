@@ -1,4 +1,9 @@
-
+/**
+ * @description: This function is called when an image fails to load
+ * It will load the fallback image for the profile picture
+ * 
+ * @param {Event} e 
+ */
 const handleImageLoadError = (e) => {
     const { attributes: { status: { value } } } = e.target;
     const fallbacks = document.querySelectorAll('[profileThumbnailFallback]');
@@ -21,14 +26,20 @@ const handleImageLoadError = (e) => {
 };
 
 
-
+/**
+ * @description: This function is called when the page is loaded
+ */
 const onLoad = () => {
+    //get all the profile thumbnails and attach an error event listener to them
+    //This will load the fallback image if the profile picture fails to load
     const thumbnails = document.querySelectorAll('[profileThumbnail]');
     for(let i = 0; i < thumbnails.length; i++) {
         thumbnails[i].onerror = handleImageLoadError;
         thumbnails[i].src = thumbnails[i].src;
     } 
     
+    //get all the comment thumbnails images and attach an error event listener to them
+    //This will load the fallback image if the profile picture fails to load
     const commentThumbnails = document.querySelectorAll('[commentThumbnail]');
     for(let i = 0; i < commentThumbnails.length; i++) {
         commentThumbnails[i].onerror = handleImageLoadError;
