@@ -39,16 +39,40 @@ User.objects.all().delete()
 
 newusers = [
     {
-        "username": "richard",
-        "email": "richard.sefton@googlemail.com",
-        "password1": "Password123!",
-        "password2": "Password123!"
+        "username": "Leonardo",
+        "email": "Leonardo@turtles.com",
+        "password1": "Turtl3P0wer!",
+        "password2": "Turtl3P0wer!"
     },
     {
-        "username": "rsefton",
-        "email": "richard.sefton@thenavpeople.co.uk",
-        "password1": "Password123!",
-        "password2": "Password123!"
+        "username": "Donatello",
+        "email": "Donatello@turltes.com",
+        "password1": "Turtl3P0wer!",
+        "password2": "Turtl3P0wer!"
+    },
+    {
+        "username": "Raphael",
+        "email": "Raphael@turltes.com",
+        "password1": "Turtl3P0wer!",
+        "password2": "Turtl3P0wer!"
+    },
+    {
+        "username": "Michelangelo",
+        "email": "Michelangelo@turltes.com",
+        "password1": "Turtl3P0wer!",
+        "password2": "Turtl3P0wer!"
+    },
+    {
+        "username": "April",
+        "email": "April@turltes.com",
+        "password1": "Channel5N3ws!",
+        "password2": "Channel5N3ws!"
+    },
+    {
+        "username": "Splinter",
+        "email": "Splinter@turltes.com",
+        "password1": "Hamat0Y0sh!",
+        "password2": "Hamat0Y0sh!"
     },
 ]
 

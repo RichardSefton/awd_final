@@ -19,7 +19,7 @@ def make_thumbnail(profile_id):
         
     byteArr = io.BytesIO()
     print('byteArr', byteArr)
-    thumbnail.save(byteArr, format='jpeg')
+    thumbnail.save(byteArr, format=image.format)
     print(thumbnail)
     file = SimpleUploadedFile('thumb_'+str(profile.profile_pic), byteArr.getvalue())
     print(file)
